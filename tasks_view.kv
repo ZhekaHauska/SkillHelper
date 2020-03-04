@@ -1,0 +1,11 @@
+#:import tasks_view tasks_view
+<TasksView>:
+    viewclass: 'TaskItem'
+    bar_width: 15
+    scroll_type: ["bars", "content"]
+    RecycleBoxLayout:
+        default_size: None, dp(56)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'

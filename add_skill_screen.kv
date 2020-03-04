@@ -1,0 +1,38 @@
+#:import add_skill_screen add_skill_screen
+<AddSkillScreen@Screen>:
+    name: "add_skill_screen"
+    skill_name: _skill_name
+    skill_description: _skill_description
+    skill_time: _skill_time
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: 1, 0.3
+            Button:
+                size_hint: 0.1, 1
+                text: "Back"
+                on_press: root.manager.current = "skills_screen"
+            SHTextInput:
+                id: _skill_name
+                text: "Skill name"
+                multiline: False
+        SHTextInput:
+            size_hint: 1, 3
+            id: _skill_description
+            text: "Description"
+        BoxLayout
+            orientation: "horizontal"
+            Label:
+                text: "Start time:"
+            TextInput:
+                id: _skill_time
+                text: "0"
+                multiline: False
+        AddSkillButton:
+            screen_manager: root.manager
+            skill_name: _skill_name
+            skill_description: _skill_description
+            skill_time: _skill_time
+            text: "Add"
+            on_press: self.add_skill()

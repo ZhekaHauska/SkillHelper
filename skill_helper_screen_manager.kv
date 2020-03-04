@@ -1,0 +1,22 @@
+#:import FadeTransition kivy.uix.screenmanager.FadeTransition
+<SkillHelperScreenManager>:
+    skill_info_screen: _skill_info_screen
+    skills_screen: _skills_screen
+    task_info_screen: _task_info_screen
+    tasks_screen: _tasks_screen
+
+    transition: FadeTransition()
+
+    SkillsScreen:
+        id: _skills_screen
+    SkillInfoScreen:
+        id: _skill_info_screen
+    AddSkillScreen:
+        screen_manager: root
+    
+    TasksScreen:
+        id: _tasks_screen
+    TaskInfoScreen:
+        id: _task_info_screen
+    AddTaskScreen:
+        screen_manager: root

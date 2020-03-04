@@ -1,0 +1,30 @@
+#:import skill_helper_widgets skill_helper_widgets
+<SkillItem>:
+    orientation: 'horizontal'
+    name: ""
+    max_time: 100
+    time: 0
+    description: ""
+    item_id: 0
+    Label:
+        text: root.name
+    ProgressBar:
+        value_normalized: float(root.time / root.max_time) if root.max_time > 0 else 0
+
+    Label:
+        text: str(root.time)
+
+<TaskItem>:
+    orientation: 'horizontal'
+    name: ""
+    max_time: 100
+    time: 0
+    description: ""
+    item_id: 0
+    Label:
+        text: root.name
+    ProgressBar:
+        value_normalized: float(root.time / root.max_time) if root.max_time > 0 else 0
+
+    Label:
+        text: str(root.time)

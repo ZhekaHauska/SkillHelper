@@ -1,0 +1,72 @@
+#:import task_info_screen task_info_screen
+<TaskInfoScreen>:
+    name: 'task_info_screen'
+    item_name: _item_name
+    item_description: _item_description
+    item_time: _item_time
+    item_id: 0
+    unhide_button: _unhide_button
+    options: _options
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: 1, 0.3
+            Button:
+                size_hint: 0.1, 1
+                text: "Back"
+                on_press: root.manager.current = "tasks_screen"
+            Label:
+                id: _item_name
+                text: "Task name"
+            Label:
+                id: _item_time
+                text: "Total time"
+        Label:
+            size_hint: 1, 3
+            id: _item_description
+            text: "Description"
+        AnchorLayout:
+            size_hint: 1, 2
+            id: _options
+            BoxLayout:
+                orientation: 'vertical'
+                Label:
+                    text: "Timer"
+                BoxLayout:
+                    orientation: 'horizontal'
+                    Button:
+                        text: "Start"
+                    Button:
+                        text: "Pause"
+                    Button:
+                        text: "Finish"
+                BoxLayout:
+                    orientation: 'horizontal'
+                    AddTimeButton:
+                        task_info_screen: root
+                        screen_manager: root.manager
+                        add_time_amount: _add_time_amount
+                        text: "Add time"
+                        on_press: self.add_time()
+                    TextInput:
+                        id: _add_time_amount
+                        text: "hours"
+                        on_focus: self.text=""
+                        multiline: False
+                RemoveTaskButton:
+                    task_info_screen: root
+                    screen_manager: root.manager
+                    text: "Remove task"
+                    on_press: self.remove_task()
+                HideTaskButton:
+                    task_info_screen: root
+                    screen_manager: root.manager
+                    text: "Mark as done"
+                    on_press: self.hide_task()
+        UnhideTaskButton:
+            task_info_screen: root
+            screen_manager: root.manager
+            id: _unhide_button
+            text: "Mark as not done"
+            on_press: self.unhide_task()

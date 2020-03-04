@@ -1,0 +1,27 @@
+<TasksScreen@Screen>:
+    name: "tasks_screen"
+    items_view: _items_view
+    BoxLayout:
+        orientation: 'vertical'
+        AnchorLayout:
+            size_hint: 1, 0.1
+            anchor_x: 'left'
+            anchor_y: 'top'
+            BoxLayout:
+                size_hint: 0.5, 1
+                orientation: 'horizontal'
+                ToggleButton:
+                    text: "Skills"
+                    group: "task_switch"
+                    on_state:
+                        root.manager.current = "skills_screen"
+                ToggleButton:
+                    text: "Tasks"
+                    state: "down"
+                    group: "task_switch"
+        TasksView:
+            id: _items_view
+            screen_manager: root.manager
+        TaskControlPanel:
+            screen_manager: root.manager
+            size_hint: 1, 0.1

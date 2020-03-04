@@ -1,0 +1,24 @@
+#:import control_panel control_panel
+<SkillControlPanel>:
+    AnchorLayout:
+        anchor_x: 'left'
+        BoxLayout:
+            size_hint: 0.5, 1
+            Button:
+                text: "New skill"
+                on_press: root.screen_manager.current = 'add_skill_screen'
+            ToggleButton:
+                text: "Hidden"
+                on_press: root.screen_manager.db_skills.toggle_view()
+
+<TaskControlPanel>:
+    AnchorLayout:
+        anchor_x: 'left'
+        BoxLayout:
+            size_hint: 0.5, 1
+            Button:
+                text: "New task"
+                on_press: root.screen_manager.current = 'add_task_screen'
+            ToggleButton:
+                text: "Done"
+                on_press: root.screen_manager.db_tasks.toggle_view()
