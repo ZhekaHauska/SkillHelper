@@ -54,19 +54,22 @@
                         text: "hours"
                         on_focus: self.text=""
                         multiline: False
-                RemoveSkillButton:
-                    skill_info_screen: root
-                    screen_manager: root.manager
-                    text: "Remove skill"
-                    on_press: self.remove_skill()
+
                 HideSkillButton:
                     skill_info_screen: root
                     screen_manager: root.manager
                     text: "Hide skill"
                     on_press: self.hide_skill()
-        UnhideSkillButton:
-            skill_info_screen: root
-            screen_manager: root.manager
-            id: _unhide_button
-            text: "Unhide skill"
-            on_press: self.unhide_skill()
+        BoxLayout:
+            orientation: "horizontal"
+            UnhideSkillButton:
+                skill_info_screen: root
+                screen_manager: root.manager
+                id: _unhide_button
+                text: "Unhide skill"
+                on_press: self.unhide_skill()
+            RemoveSkillButton:
+                skill_info_screen: root
+                screen_manager: root.manager
+                text: "Remove skill"
+                on_press: self.remove_skill()

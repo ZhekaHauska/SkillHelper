@@ -43,7 +43,7 @@
                         text: "Finish"
                 BoxLayout:
                     orientation: 'horizontal'
-                    AddTimeButton:
+                    AddTaskTimeButton:
                         task_info_screen: root
                         screen_manager: root.manager
                         add_time_amount: _add_time_amount
@@ -54,19 +54,21 @@
                         text: "hours"
                         on_focus: self.text=""
                         multiline: False
-                RemoveTaskButton:
-                    task_info_screen: root
-                    screen_manager: root.manager
-                    text: "Remove task"
-                    on_press: self.remove_task()
                 HideTaskButton:
                     task_info_screen: root
                     screen_manager: root.manager
                     text: "Mark as done"
                     on_press: self.hide_task()
-        UnhideTaskButton:
-            task_info_screen: root
-            screen_manager: root.manager
-            id: _unhide_button
-            text: "Mark as not done"
-            on_press: self.unhide_task()
+        BoxLayout:
+            orientation: "horizontal"
+            UnhideTaskButton:
+                task_info_screen: root
+                screen_manager: root.manager
+                id: _unhide_button
+                text: "Mark as not done"
+                on_press: self.unhide_task()
+            RemoveTaskButton:
+                task_info_screen: root
+                screen_manager: root.manager
+                text: "Remove task"
+                on_press: self.remove_task()
