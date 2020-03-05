@@ -15,7 +15,7 @@ class TaskInfoScreen(Screen):
             self.unhide_button.disabled = True
 
 
-class AddTimeButton(Button):
+class AddTaskTimeButton(Button):
     def add_time(self):
         self.screen_manager.db_tasks.add_time(self.task_info_screen.item_id,
                                               float(self.add_time_amount.text))
