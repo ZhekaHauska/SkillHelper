@@ -6,7 +6,7 @@ class Formats:
         return name
 
     def time_format(self, time):
-        return f"Total time: {time} hours"
+        return f"Total time: {round(time, 2)} hours"
 
     def description_format(self, description):
         return description

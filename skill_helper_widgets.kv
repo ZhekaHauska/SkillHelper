@@ -12,7 +12,7 @@
         value_normalized: float(root.time / root.max_time) if root.max_time > 0 else 0
 
     Label:
-        text: str(root.time)
+        text: str(round(root.time, 2))
 
 <TaskItem>:
     orientation: 'horizontal'
@@ -27,4 +27,23 @@
         value_normalized: float(root.time / root.max_time) if root.max_time > 0 else 0
 
     Label:
-        text: str(root.time)
+        text: str(round(root.time, 2))
+
+
+<Timer>:
+    orientation: 'vertical'
+    timer: _timer
+    Label:
+        id: _timer
+        text: "Timer"
+    BoxLayout:
+        orientation: 'horizontal'
+        Button:
+            text: "Start"
+            on_press: root.start()
+        Button:
+            text: "Pause"
+            on_press: root.pause()
+        Button:
+            text: "Finish"
+            on_press: root.finish()

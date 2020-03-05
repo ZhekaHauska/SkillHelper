@@ -1,6 +1,7 @@
 from kivy.uix.boxlayout import BoxLayout
 from kivy.graphics import Line, Color
 from kivy.uix.textinput import TextInput
+from kivy.clock import Clock
 
 
 class Item(BoxLayout):
@@ -45,3 +46,36 @@ class SHTextInput(TextInput):
         if self.collide_point(*touch.pos):
             self.select_all()
         return super(SHTextInput, self).on_touch_up(touch)
+
+
+class Timer(BoxLayout):
+    def __init__(self, **kwargs):
+        super(Timer, self).__init__(**kwargs)
+        self.time = 0
+        self.state = "off"
+
+    def start(self):
+        self.time = 0
+        self.state = "on"
+        Clock.schedule_interval(self.refresh_timer, 1)
+
+    def refresh_timer(self, dt):
+        if self.state == "on":
+            self.time += 1
+            self.timer.text = "{} : {} : {}".format(self.time // 3600,
+                                                    (self.time % 3600) // 60,
+                                                     self.time % 60)
+        elif self.state == "pause":
+            pass
+        else:
+            return False
+
+    def finish(self):
+        self.state = "off"
+        self.add_time_amount.text = str(round(self.time / 3600, 2))
+
+    def pause(self):
+        if self.state == "pause":
+            self.state = "on"
+        elif self.state == "on":
+            self.state = "pause"

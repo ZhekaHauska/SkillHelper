@@ -31,22 +31,16 @@
             id: _options
             BoxLayout:
                 orientation: 'vertical'
-                Label:
-                    text: "Timer"
-                BoxLayout:
-                    orientation: 'horizontal'
-                    Button:
-                        text: "Start"
-                    Button:
-                        text: "Pause"
-                    Button:
-                        text: "Finish"
+                Timer:
+                    id: _timer
+                    add_time_amount: _add_time_amount
                 BoxLayout:
                     orientation: 'horizontal'
                     AddTimeButton:
                         skill_info_screen: root
                         screen_manager: root.manager
                         add_time_amount: _add_time_amount
+                        timer: _timer
                         text: "Add time"
                         on_press: self.add_time()
                     TextInput:
