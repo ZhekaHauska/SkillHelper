@@ -44,4 +44,4 @@ class SHTextInput(TextInput):
     def on_touch_up(self, touch):
         if self.collide_point(*touch.pos):
             self.select_all()
-        return super(SHTextInput, self).on_touch_down(touch)
+        return super(SHTextInput, self).on_touch_up(touch)
