@@ -25,6 +25,8 @@ class Database:
             self.data = yaml.load(file, Loader=yaml.Loader)
             self.items = self.data['items']
             self.hidden_items = self.data['hidden']
+        self.recalculate_priority()
+        self.sort_items()
 
     # refreshing views
     def refresh_info(self, idx):
@@ -52,6 +54,9 @@ class Database:
         self.items.append(item)
 
         self.recalculate_max()
+        self.recalculate_priority()
+        self.sort_items()
+
         self.refresh_view()
         self.save()
 
@@ -59,6 +64,9 @@ class Database:
         self.items[idx]['time'] += value
 
         self.recalculate_max()
+        self.recalculate_priority()
+        self.sort_items()
+
         self.refresh_view()
         self.refresh_info(idx)
         self.save()
@@ -66,8 +74,10 @@ class Database:
     def remove_item(self, idx):
         self.items.pop(idx)
 
-        self.reindex()
+        self.recalculate_priority()
+        self.sort_items()
         self.recalculate_max()
+
         self.refresh_view()
         self.save()
 
@@ -102,8 +112,10 @@ class Database:
         self.remove_item(idx)
         self.hidden_items.append(item)
 
-        self.reindex()
+        self.recalculate_priority()
+        self.sort_items()
         self.recalculate_max()
+
         self.refresh_view()
         self.save()
 
@@ -111,8 +123,10 @@ class Database:
         item = self.hidden_items.pop(idx)
         self.add_item(item)
 
-        self.reindex()
+        self.recalculate_priority()
+        self.sort_items()
         self.recalculate_max()
+
         self.refresh_view()
         self.save()
 
@@ -121,3 +135,24 @@ class Database:
         self.refresh_view()
         self.info_screen.toggle_view()
 
+    def recalculate_priority(self):
+        for x in self.items:
+            priority = 1/(x['time'] + 1)
+            x['priority'] = priority
+
+    def sort_items(self):
+        self.items = sorted(self.items, key=lambda x: x['priority'], reverse=True)
+        self.reindex()
+
+
+class SkillsDatabase(Database):
+    def refresh_info(self, idx):
+        pass
+
+    def recalculate_priority(self):
+        pass
+
+
+class TasksDatabase(Database):
+    def refresh_info(self, idx):
+        pass
