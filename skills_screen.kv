@@ -10,14 +10,13 @@
             BoxLayout:
                 size_hint: 0.5, 1
                 orientation: 'horizontal'
-                ToggleButton:
+                Button:
                     text: "Skills"
                     state: "down"
-                    group: "skill_switch"
-                ToggleButton:
+                    disabled: True
+                Button:
                     text: "Tasks"
-                    group: "skill_switch"
-                    on_state:
+                    on_press:
                         root.manager.current = "tasks_screen"
         SkillsView:
             id: _items_view
