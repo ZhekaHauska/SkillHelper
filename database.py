@@ -34,6 +34,7 @@ class Database:
         self.edit_screen.item_name.text = str(item['name'])
         self.edit_screen.item_time.text = str(item['time'])
         self.edit_screen.item_description.text = item['description']
+        self.edit_screen.item_importance.value = item['importance']
         self.edit_screen.curr_item = item
 
     def refresh_info(self, idx):
