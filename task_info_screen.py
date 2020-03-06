@@ -17,23 +17,29 @@ class TaskInfoScreen(Screen):
 
 class AddTaskTimeButton(Button):
     def add_time(self):
-        self.screen_manager.db_tasks.add_time(self.task_info_screen.item_id,
+        self.screen_manager.db_tasks.add_time(self.task_info_screen.curr_item['item_id'],
                                               float(self.add_time_amount.text))
 
 
 class RemoveTaskButton(Button):
     def remove_task(self):
-        self.screen_manager.db_tasks.remove_item(self.task_info_screen.item_id)
+        self.screen_manager.db_tasks.remove_item(self.task_info_screen.curr_item['item_id'])
         self.screen_manager.current = "tasks_screen"
 
 
 class HideTaskButton(Button):
     def hide_task(self):
-        self.screen_manager.db_tasks.hide_item(self.task_info_screen.item_id)
+        self.screen_manager.db_tasks.hide_item(self.task_info_screen.curr_item['item_id'])
         self.screen_manager.current = "tasks_screen"
 
 
 class UnhideTaskButton(Button):
     def unhide_task(self):
-        self.screen_manager.db_tasks.unhide_item(self.task_info_screen.item_id)
+        self.screen_manager.db_tasks.unhide_item(self.task_info_screen.curr_item['item_id'])
         self.screen_manager.current = "tasks_screen"
+
+
+class EditTaskButton(Button):
+    def edit_item(self):
+        self.screen_manager.current = "edit_task_screen"
+        self.screen_manager.db_tasks.refresh_edit(self.task_info_screen.curr_item["item_id"])

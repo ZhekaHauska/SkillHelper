@@ -4,7 +4,6 @@
     item_name: _item_name
     item_description: _item_description
     item_time: _item_time
-    item_id
     current_item: None
     unhide_button: _unhide_button
     options: _options
@@ -63,6 +62,11 @@
                 id: _unhide_button
                 text: "Unhide skill"
                 on_press: self.unhide_skill()
+            EditSkillButton:
+                skill_info_screen: root
+                screen_manager: root.manager
+                text: "Edit"
+                on_press: self.edit_item()
             RemoveSkillButton:
                 skill_info_screen: root
                 screen_manager: root.manager

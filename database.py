@@ -13,12 +13,12 @@ class Formats:
 
 
 class Database:
-    def __init__(self, db_name, view_screen, info_screen, settings_screen):
+    def __init__(self, db_name, view_screen, info_screen, edit_screen):
         self.db_name = db_name
         self.show_hidden = False
         self.view_screen = view_screen
         self.info_screen = info_screen
-        self.settings_screen = settings_screen
+        self.edit_screen = edit_screen
         self.formats = Formats()
         # try to load database from disk
         with open(f'{self.db_name}.yaml') as file:
@@ -29,6 +29,13 @@ class Database:
         self.sort_items()
 
     # refreshing views
+    def refresh_edit(self, idx):
+        item = self.items[idx]
+        self.edit_screen.item_name.text = str(item['name'])
+        self.edit_screen.item_time.text = str(item['time'])
+        self.edit_screen.item_description.text = item['description']
+        self.edit_screen.curr_item = item
+
     def refresh_info(self, idx):
         if self.show_hidden:
             item = self.hidden_items[idx]
@@ -37,7 +44,7 @@ class Database:
         self.info_screen.item_name.text = self.formats.name_format(item['name'])
         self.info_screen.item_time.text = self.formats.time_format(item['time'])
         self.info_screen.item_description.text = self.formats.description_format(item['description'])
-        self.info_screen.item_id = idx
+        self.info_screen.curr_item = item
         self.info_screen.toggle_view()
 
     def refresh_view(self):
@@ -59,16 +66,26 @@ class Database:
 
         self.refresh_view()
         self.save()
-
-    def add_time(self, idx, value):
-        self.items[idx]['time'] += value
+        
+    def edit_item(self, item, idx):
+        self.items[idx] = item
 
         self.recalculate_max()
         self.recalculate_priority()
         self.sort_items()
 
         self.refresh_view()
+        self.save()
+    
+    def add_time(self, idx, value):
+        self.items[idx]['time'] += value
         self.refresh_info(idx)
+
+        self.recalculate_max()
+        self.recalculate_priority()
+        self.sort_items()
+
+        self.refresh_view()
         self.save()
 
     def remove_item(self, idx):
@@ -137,7 +154,10 @@ class Database:
 
     def recalculate_priority(self):
         for x in self.items:
-            priority = 1/(x['time'] + 1)
+            if not("importance" in x.keys()):
+                x['importance'] = 0
+
+            priority = 1 / (x['time'] * (1 - x['importance']) + 1)
             x['priority'] = priority
 
     def sort_items(self):

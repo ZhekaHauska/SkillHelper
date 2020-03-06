@@ -11,11 +11,13 @@ Builder.load_file("skills_screen.kv")
 Builder.load_file("skills_view.kv")
 Builder.load_file("skill_info_screen.kv")
 Builder.load_file("add_skill_screen.kv")
+Builder.load_file("edit_skill_screen.kv")
 
 Builder.load_file("tasks_screen.kv")
 Builder.load_file("tasks_view.kv")
 Builder.load_file("task_info_screen.kv")
 Builder.load_file("add_task_screen.kv")
+Builder.load_file("edit_task_screen.kv")
 
 
 class SkillHelperScreenManager(ScreenManager):
@@ -26,8 +28,8 @@ class SkillHelperApp(App):
     def build(self):
         # link database and interface
         sm = SkillHelperScreenManager()
-        db_skills = Database("skills", sm.skills_screen, sm.skill_info_screen, None)
-        db_tasks = Database("tasks", sm.tasks_screen, sm.task_info_screen, None)
+        db_skills = Database("skills", sm.skills_screen, sm.skill_info_screen, sm.edit_skill_screen)
+        db_tasks = Database("tasks", sm.tasks_screen, sm.task_info_screen, sm.edit_task_screen)
         sm.db_skills = db_skills
         sm.db_tasks = db_tasks
         # initialize view

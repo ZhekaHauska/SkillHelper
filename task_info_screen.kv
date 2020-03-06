@@ -4,7 +4,7 @@
     item_name: _item_name
     item_description: _item_description
     item_time: _item_time
-    item_id: 0
+    curr_item: None
     unhide_button: _unhide_button
     options: _options
     BoxLayout:
@@ -61,6 +61,11 @@
                 id: _unhide_button
                 text: "Mark as not done"
                 on_press: self.unhide_task()
+            EditTaskButton:
+                task_info_screen: root
+                screen_manager: root.manager
+                text: "Edit"
+                on_press: self.edit_item()
             RemoveTaskButton:
                 task_info_screen: root
                 screen_manager: root.manager

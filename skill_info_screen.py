@@ -17,23 +17,29 @@ class SkillInfoScreen(Screen):
 
 class AddTimeButton(Button):
     def add_time(self):
-        self.screen_manager.db_skills.add_time(self.skill_info_screen.item_id,
+        self.screen_manager.db_skills.add_time(self.skill_info_screen.curr_item["item_id"],
                                               float(self.add_time_amount.text))
 
 
 class RemoveSkillButton(Button):
     def remove_skill(self):
-        self.screen_manager.db_skills.remove_item(self.skill_info_screen.item_id)
+        self.screen_manager.db_skills.remove_item(self.skill_info_screen.curr_item["item_id"])
         self.screen_manager.current = "skills_screen"
 
 
 class HideSkillButton(Button):
     def hide_skill(self):
-        self.screen_manager.db_skills.hide_item(self.skill_info_screen.item_id)
+        self.screen_manager.db_skills.hide_item(self.skill_info_screen.curr_item["item_id"])
         self.screen_manager.current = "skills_screen"
 
 
 class UnhideSkillButton(Button):
     def unhide_skill(self):
-        self.screen_manager.db_skills.unhide_item(self.skill_info_screen.item_id)
+        self.screen_manager.db_skills.unhide_item(self.skill_info_screen.curr_item["item_id"])
         self.screen_manager.current = "skills_screen"
+
+
+class EditSkillButton(Button):
+    def edit_item(self):
+        self.screen_manager.current = "edit_skill_screen"
+        self.screen_manager.db_skills.refresh_edit(self.skill_info_screen.curr_item["item_id"])

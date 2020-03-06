@@ -1,9 +1,11 @@
-#:import add_task_screen add_task_screen
-<AddTaskScreen@Screen>:
-    name: "add_task_screen"
-    task_name: _task_name
-    task_description: _task_description
-    task_time: _task_time
+#:import edit_skill_screen edit_skill_screen
+<EditSkillScreen@Screen>:
+    name: "edit_skill_screen"
+    item_name: _item_name
+    item_description: _item_description
+    item_time: _item_time
+    item_importance: _slider
+    curr_item: None
     BoxLayout:
         orientation: 'vertical'
         BoxLayout:
@@ -12,23 +14,23 @@
             Button:
                 size_hint: 0.1, 1
                 text: "Back"
-                on_press: root.manager.current = "tasks_screen"
+                on_press: root.manager.current = "skills_screen"
             SHTextInput:
-                id: _task_name
-                text: "Task name"
+                id: _item_name
+                text: "Skill name"
                 multiline: False
         SHTextInput:
             size_hint: 1, 3
-            id: _task_description
+            id: _item_description
             text: "Description"
-        BoxLayout:
+        BoxLayout
             orientation: "horizontal"
             BoxLayout:
                 orientation: "vertical"
                 Label:
                     text: "Start time"
                 SHTextInput:
-                    id: _task_time
+                    id: _item_time
                     text: "0"
                     multiline: False
             BoxLayout:
@@ -43,11 +45,12 @@
                     orientation: "horizontal"
                     value_track: True
                     value_track_color: 1, 0, 0, 1
-        AddTaskButton:
+        SaveSkillButton:
+            edit_screen: root
             screen_manager: root.manager
-            task_name: _task_name
-            task_description: _task_description
-            task_time: _task_time
-            task_importance: _slider.value
-            text: "Add"
-            on_press: self.add_task()
+            item_name: _item_name
+            item_description: _item_description
+            item_time: _item_time
+            item_importance: _slider.value
+            text: "Save"
+            on_press: self.edit_item()
