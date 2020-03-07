@@ -2,6 +2,51 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.graphics import Line, Color
 from kivy.uix.textinput import TextInput
 from kivy.clock import Clock
+from kivy.uix.anchorlayout import AnchorLayout
+from kivy.properties import ObjectProperty
+
+
+def rgb_to_hsl(r, g, b):
+    r = float(r)
+    g = float(g)
+    b = float(b)
+    high = max(r, g, b)
+    low = min(r, g, b)
+
+    v = high
+
+    if high == 0:
+        s = 0
+    else:
+        s = 1 - low / high
+
+    if high == low:
+        h = 0
+    elif high == r and g >= b:
+        h = 60 * (g - b) / (high - low)
+    elif high == r and g < b:
+        h = 60 * (g - b) / (high - low) + 360
+    elif high == g:
+        h = 60 * (b - r) / (high - low) + 120
+    else:
+        h = 60 * (r - g) / (high - low) + 240
+
+    h /= 360
+    return h, s, v
+
+
+class ColoredIndicator(AnchorLayout):
+    val = ObjectProperty(float(0))
+
+    def byr_colormap(self, value, saturation=0.8):
+        if value < 0.5:
+            color = (2*value, 2*value, (0.5 - value)*2)
+        else:
+            color = (1, (1 - value)*2, 0)
+
+        color = rgb_to_hsl(*color)
+        color = (color[0], saturation, color[2])
+        return color
 
 
 class Item(BoxLayout):
