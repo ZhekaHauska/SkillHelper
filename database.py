@@ -157,8 +157,10 @@ class Database:
         for x in self.items:
             if not("importance" in x.keys()):
                 x['importance'] = 0
-
-            priority = 1 / (x['time'] * (1 - x['importance']) + 1)
+            if x['max_time'] != 0:
+                priority = x['max_time'] / (x['time'] * (1 - x['importance']) + x['max_time'])
+            else:
+                priority = 0
             x['priority'] = priority
 
     def sort_items(self):
