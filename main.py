@@ -34,7 +34,9 @@ class SkillHelperApp(App):
         sm.db_tasks = db_tasks
         # initialize view
         db_skills.refresh_view()
+        db_skills.refresh_stats()
         db_tasks.refresh_view()
+        db_tasks.refresh_stats()
 
         sm.current = "skills_screen"
         return sm

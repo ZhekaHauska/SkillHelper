@@ -1,6 +1,7 @@
 <TasksScreen@Screen>:
     name: "tasks_screen"
     items_view: _items_view
+    stats: _stats
     BoxLayout:
         orientation: 'vertical'
         AnchorLayout:
@@ -24,3 +25,6 @@
         TaskControlPanel:
             screen_manager: root.manager
             size_hint: 1, 0.1
+        Label:
+            size_hint: 1, 0.05
+            id: _stats
