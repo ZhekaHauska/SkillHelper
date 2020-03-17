@@ -4,9 +4,35 @@ from kivy.uix.textinput import TextInput
 from kivy.clock import Clock
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.properties import ObjectProperty
+from kivy.uix.slider import Slider
 
 
-def rgb_to_hsl(r, g, b):
+def hsv_to_rgb(h, s, v):
+    h *= 360
+    c = v * s
+    hs = h / 60
+    x = c * (1 - abs(hs % 2 - 1))
+    if 0 <= hs <= 1:
+        r, g, b = c, x, 0
+    elif 1 < hs <= 2:
+        r, g, b = x, c, 0
+    elif 2 < hs <= 3:
+        r, g, b = 0, c, x
+    elif 3 < hs <= 4:
+        r, g, b = 0, x, c
+    elif 4 < hs <= 5:
+        r, g, b = x, 0, c
+    elif 5 < hs <= 6:
+        r, g, b = c, 0, x
+    else:
+        r, g, b = 0, 0, 0
+
+    m = v - c
+    r, g, b = r + m, g + m, b + m
+    return r, g, b
+
+
+def rgb_to_hsv(r, g, b):
     r = float(r)
     g = float(g)
     b = float(b)
@@ -35,6 +61,17 @@ def rgb_to_hsl(r, g, b):
     return h, s, v
 
 
+def byr_colormap(value, saturation=0.8):
+    if value < 0.5:
+        color = (2*value, 2*value, (0.5 - value)*2)
+    else:
+        color = (1, (1 - value)*2, 0)
+
+    color = rgb_to_hsv(*color)
+    color = (color[0], saturation, color[2])
+    return color
+
+
 class ColoredIndicator(AnchorLayout):
     val = ObjectProperty(float(0))
 
@@ -44,7 +81,7 @@ class ColoredIndicator(AnchorLayout):
         else:
             color = (1, (1 - value)*2, 0)
 
-        color = rgb_to_hsl(*color)
+        color = rgb_to_hsv(*color)
         color = (color[0], saturation, color[2])
         return color
 
@@ -124,3 +161,8 @@ class Timer(BoxLayout):
             self.state = "on"
         elif self.state == "on":
             self.state = "pause"
+
+
+class ImportanceSlider(Slider):
+    def on_value(self, instance, value):
+        self.value_track_color = *hsv_to_rgb(*byr_colormap(value)), 1
