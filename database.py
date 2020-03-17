@@ -1,6 +1,7 @@
 import yaml
 import pandas as pd
 import time
+import math
 
 
 week_days = {'monday': 0,
@@ -38,19 +39,16 @@ class Database:
             self.data = yaml.load(file, Loader=yaml.Loader)
             self.items = self.data['items']
             self.hidden_items = self.data['hidden']
+            self.expected_time = self.data['expected_time']
         # try to load history
         try:
             self.history = pd.read_csv('history.csv', index_col=0, parse_dates=True)
         except FileNotFoundError:
             self.history = pd.DataFrame(columns=['name', 'type', 'time', 'importance', 'dtime'])
-        # calculate expected time
-        # average total for two weeks time
-        self.expected_time = self.history['dtime'].resample('14D').sum().mean()
-        if self.expected_time == 0:
-            self.expected_time = 6*14
 
         self.recalculate_priority()
         self.sort_items()
+        self.save()
 
     # refreshing views
     def refresh_edit(self, idx):
@@ -167,7 +165,8 @@ class Database:
 
         """
         with open(f'{self.db_name}.yaml', 'w') as file:
-            yaml.dump(dict(items=self.items,
+            yaml.dump(dict(expected_time=self.expected_time,
+                           items=self.items,
                            hidden=self.hidden_items), file, Dumper=yaml.Dumper)
 
         self.history.to_csv('history.csv')
@@ -201,14 +200,21 @@ class Database:
         self.info_screen.toggle_view()
 
     def recalculate_priority(self):
+        # calculate expected time
+        # average total for two weeks time
+        self.expected_time = self.history['dtime'].resample('14D').sum().mean()
+        if self.expected_time == 0:
+            self.expected_time = 6 * 14
+
         total_importance = 0
         for x in self.items:
-            total_importance += (x['importance'] + 1)
+            total_importance += pow(1.2, x['importance'] // 0.05)
 
         for x in self.items:
-            etime = (x['importance'] + 1) * self.expected_time / total_importance
+            etime = pow(1.2, x['importance'] // 0.05) * self.expected_time / total_importance
             priority = 1 - x['time'] / etime
             x['priority'] = priority
+            x['etime'] = etime
 
     def sort_items(self):
         self.items = sorted(self.items, key=lambda x: x['priority'], reverse=True)
