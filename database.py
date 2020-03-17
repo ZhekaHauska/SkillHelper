@@ -38,13 +38,19 @@ class Database:
             self.data = yaml.load(file, Loader=yaml.Loader)
             self.items = self.data['items']
             self.hidden_items = self.data['hidden']
-        self.recalculate_priority()
-        self.sort_items()
         # try to load history
         try:
             self.history = pd.read_csv('history.csv', index_col=0, parse_dates=True)
         except FileNotFoundError:
             self.history = pd.DataFrame(columns=['name', 'type', 'time', 'importance', 'dtime'])
+        # calculate expected time
+        # average total for two weeks time
+        self.expected_time = self.history['dtime'].resample('14D').sum().mean()
+        if self.expected_time == 0:
+            self.expected_time = 6*14
+
+        self.recalculate_priority()
+        self.sort_items()
 
     # refreshing views
     def refresh_edit(self, idx):
@@ -195,13 +201,13 @@ class Database:
         self.info_screen.toggle_view()
 
     def recalculate_priority(self):
+        total_importance = 0
         for x in self.items:
-            if not("importance" in x.keys()):
-                x['importance'] = 0
-            if x['max_time'] != 0:
-                priority = x['max_time'] / (x['time'] * (1 - x['importance']) + x['max_time'])
-            else:
-                priority = 0
+            total_importance += (x['importance'] + 1)
+
+        for x in self.items:
+            etime = (x['importance'] + 1) * self.expected_time / total_importance
+            priority = 1 - x['time'] / etime
             x['priority'] = priority
 
     def sort_items(self):
