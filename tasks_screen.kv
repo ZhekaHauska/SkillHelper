@@ -15,6 +15,7 @@
                     text: "Skills"
                     on_press:
                         root.manager.current = "skills_screen"
+                        root.manager.db_skills.refresh_stats()
                 Button:
                     text: "Tasks"
                     state: "down"

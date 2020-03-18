@@ -1,8 +1,6 @@
 import yaml
 import pandas as pd
 import time
-import math
-
 
 week_days = {'monday': 0,
              'tuesday': 1,
@@ -42,9 +40,9 @@ class Database:
             self.expected_time = self.data['expected_time']
         # try to load history
         try:
-            self.history = pd.read_csv('history.csv', index_col=0, parse_dates=True)
+            self.history = pd.read_csv(f'{self.db_name}_history.csv', index_col=0, parse_dates=True)
         except FileNotFoundError:
-            self.history = pd.DataFrame(columns=['name', 'type', 'time', 'importance', 'dtime'])
+            self.history = pd.DataFrame(columns=['name', 'time', 'importance', 'dtime'])
 
         self.recalculate_priority()
         self.sort_items()
@@ -169,7 +167,7 @@ class Database:
                            items=self.items,
                            hidden=self.hidden_items), file, Dumper=yaml.Dumper)
 
-        self.history.to_csv('history.csv')
+        self.history.to_csv(f'{self.db_name}_history.csv')
 
     def hide_item(self, idx):
         item = self.items[idx]
@@ -202,19 +200,29 @@ class Database:
     def recalculate_priority(self):
         # calculate expected time
         # average total for two weeks time
-        self.expected_time = self.history['dtime'].resample('14D').sum().mean()
-        if self.expected_time == 0:
-            self.expected_time = 6 * 14
+        if self.history.empty:
+            self.expected_time = 3 * 14
+        else:
+            self.expected_time = self.history['dtime'].resample('14D').sum().mean()
 
         total_importance = 0
         for x in self.items:
             total_importance += pow(1.2, x['importance'] // 0.05)
 
         for x in self.items:
+            if self.history.empty:
+                time2w = 0
+            else:
+                time2w = self.history.query(f'name == "{x["name"]}"')['dtime'].resample('14D').sum()
+                if not time2w.empty:
+                    time2w = time2w.iloc[-1]
+                else:
+                    time2w = 0
             etime = pow(1.2, x['importance'] // 0.05) * self.expected_time / total_importance
-            priority = 1 - x['time'] / etime
+            priority = 1 - time2w / etime
             x['priority'] = priority
             x['etime'] = etime
+            x['time2w'] = time2w
 
     def sort_items(self):
         self.items = sorted(self.items, key=lambda x: x['priority'], reverse=True)
@@ -225,7 +233,6 @@ class Database:
         date = pd.to_datetime(time.asctime())
         self.history.loc[date] = [
             entry['name'],
-            self.db_name,
             entry['time'],
             entry['importance'],
             dtime
