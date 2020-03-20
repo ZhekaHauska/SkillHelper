@@ -19,6 +19,8 @@ Builder.load_file("task_info_screen.kv")
 Builder.load_file("add_task_screen.kv")
 Builder.load_file("edit_task_screen.kv")
 
+Builder.load_file("node_editor_screen.kv")
+
 
 class SkillHelperScreenManager(ScreenManager):
     pass

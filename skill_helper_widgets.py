@@ -5,6 +5,10 @@ from kivy.clock import Clock
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.properties import ObjectProperty
 from kivy.uix.slider import Slider
+from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.behaviors import ButtonBehavior
+from kivy.uix.behaviors import DragBehavior
+from kivy.uix.label import Label
 
 
 def hsv_to_rgb(h, s, v):
@@ -166,3 +170,77 @@ class Timer(BoxLayout):
 class ImportanceSlider(Slider):
     def on_value(self, instance, value):
         self.value_track_color = *hsv_to_rgb(*byr_colormap(value)), 1
+
+
+class NodeEditor(RelativeLayout):
+    def add_node(self, node):
+        self.add_widget(node)
+
+
+class Node(Label):
+    state = ObjectProperty("normal")
+    connected_to = ObjectProperty(list())
+    connected_from = ObjectProperty(list())
+    connections = ObjectProperty(list())
+
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            if touch.is_double_tap:
+                self.state = "drag"
+                return True
+            else:
+                self.state = "connect"
+                super(Label, self).on_touch_down(touch)
+        elif self.state == "connect":
+            (x, y) = self.to_parent(*touch.pos)
+            for child in self.parent.children:
+                if child.collide_point(x, y):
+                    self.connected_to.append(child)
+                    child.connected_from.append(child)
+                    self.draw_connections()
+                    return True
+            else:
+                self.state = "normal"
+                super(Label, self).on_touch_down(touch)
+        else:
+            super(Label, self).on_touch_down(touch)
+
+    def on_touch_up(self, touch):
+        if self.state == "drag":
+            self.state = "normal"
+            return True
+        super(Label, self).on_touch_up(touch)
+
+    def on_touch_move(self, touch):
+        (x, y) = self.parent.to_parent(*touch.pos)
+        if self.state == "drag" and self.parent.collide_point(x, y):
+            self.center_x = touch.x
+            self.center_y = touch.y
+            self.draw_connections()
+            return True
+        else:
+            super(Label, self).on_touch_move(touch)
+
+    def draw_connections(self):
+        for line in self.connections:
+            self.parent.canvas.remove(line)
+        self.connections.clear()
+        (ix, iy) = self.to_parent(self.center_x, self.center_y)
+        for node in self.connected_to:
+            (x, y) = node.to_parent(node.center_x, node.center_y)
+            with self.parent.canvas:
+                self.connections.append(Line(points=[ix, iy,
+                                                     x, y]))
+        for node in self.connected_from:
+            (x, y) = node.to_parent(node.center_x, node.center_y)
+            with self.parent.canvas:
+                self.connections.append(Line(points=[ix, iy,
+                                                     x, y]))
+
+    def on_state(self, instance, value):
+        if self.state == "drag":
+            self.text = "drag"
+        elif self.state == "connect":
+            self.text = "connect"
+        elif self.state == "normal":
+            self.text = "normal"

@@ -1,0 +1,22 @@
+#:import node_editor_screen node_editor_screen
+<NodeEditorScreen>:
+    name: "node_editor_screen"
+    node_editor: _node_editor
+    BoxLayout:
+        orientation: "vertical"
+        ScatterPlane:
+            id: _node_editor
+            auto_bring_to_front: False
+            Node:
+                pos: root.center_x, root.center_y
+                text: "node1"
+            Node:
+                text: "node2"
+        BoxLayout:
+            size_hint: 1, 0.1
+            Slider:
+                min: 0.5
+                max: 2
+                step: 0.1
+                value: 1
+                on_value: root.node_editor.scale = self.value

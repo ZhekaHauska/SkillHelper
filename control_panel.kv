@@ -10,6 +10,9 @@
             ToggleButton:
                 text: "Hidden"
                 on_press: root.screen_manager.db_skills.toggle_view()
+            Button:
+                text: "Connections"
+                on_press: root.screen_manager.current = 'node_editor_screen'
 
 <TaskControlPanel>:
     AnchorLayout:

@@ -75,3 +75,10 @@
     orientation: "horizontal"
     value_track: True
 
+<Node>:
+    size_hint: None, None
+    size: self.texture_size
+    canvas.before:
+        Line:
+            rectangle: (self.x-5, self.y-5, self.width+10, self.height+10)
+
