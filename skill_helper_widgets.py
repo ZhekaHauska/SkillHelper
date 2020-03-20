@@ -9,6 +9,7 @@ from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.behaviors import DragBehavior
 from kivy.uix.label import Label
+from kivy.uix.widget import Widget
 
 
 def hsv_to_rgb(h, s, v):
@@ -179,9 +180,6 @@ class NodeEditor(RelativeLayout):
 
 class Node(Label):
     state = ObjectProperty("normal")
-    connected_to = ObjectProperty(list())
-    connected_from = ObjectProperty(list())
-    connections = ObjectProperty(list())
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
@@ -194,10 +192,9 @@ class Node(Label):
         elif self.state == "connect":
             (x, y) = self.to_parent(*touch.pos)
             for child in self.parent.children:
-                if child.collide_point(x, y):
-                    self.connected_to.append(child)
-                    child.connected_from.append(child)
-                    self.draw_connections()
+                if child.collide_point(x, y) and isinstance(child, Node):
+                    self.state = "normal"
+                    self.parent.add_widget(Connection(self, child))
                     return True
             else:
                 self.state = "normal"
@@ -208,7 +205,6 @@ class Node(Label):
     def on_touch_up(self, touch):
         if self.state == "drag":
             self.state = "normal"
-            return True
         super(Label, self).on_touch_up(touch)
 
     def on_touch_move(self, touch):
@@ -216,26 +212,7 @@ class Node(Label):
         if self.state == "drag" and self.parent.collide_point(x, y):
             self.center_x = touch.x
             self.center_y = touch.y
-            self.draw_connections()
-            return True
-        else:
-            super(Label, self).on_touch_move(touch)
-
-    def draw_connections(self):
-        for line in self.connections:
-            self.parent.canvas.remove(line)
-        self.connections.clear()
-        (ix, iy) = self.to_parent(self.center_x, self.center_y)
-        for node in self.connected_to:
-            (x, y) = node.to_parent(node.center_x, node.center_y)
-            with self.parent.canvas:
-                self.connections.append(Line(points=[ix, iy,
-                                                     x, y]))
-        for node in self.connected_from:
-            (x, y) = node.to_parent(node.center_x, node.center_y)
-            with self.parent.canvas:
-                self.connections.append(Line(points=[ix, iy,
-                                                     x, y]))
+        super(Label, self).on_touch_move(touch)
 
     def on_state(self, instance, value):
         if self.state == "drag":
@@ -244,3 +221,33 @@ class Node(Label):
             self.text = "connect"
         elif self.state == "normal":
             self.text = "normal"
+
+
+class Connection(RelativeLayout):
+    direction = ObjectProperty("forward")
+
+    def __init__(self, node1, node2, **kwargs):
+        super(RelativeLayout, self).__init__(**kwargs)
+        self.line = None
+        self.arrow = None
+        self.point1 = dict(x=node1.center_x, y=node1.center_y)
+        self.point2 = dict(x=node2.center_x, y=node2.center_y)
+        self.node1 = node1
+        self.node2 = node2
+        self.redraw()
+
+    def redraw(self):
+        if self.line is not None:
+            self.canvas.remove(self.line)
+        if self.arrow is not None:
+            self.canvas.remove(self.arrow)
+        with self.canvas:
+            self.line = Line(points=[self.point1['x'], self.point1['y'],
+                                     self.point2['x'], self.point2['y']])
+
+    def on_touch_move(self, touch):
+        if self.node1.state == "drag" or self.node2.state == "drag":
+            self.point1 = dict(x=self.node1.center_x, y=self.node1.center_y)
+            self.point2 = dict(x=self.node2.center_x, y=self.node2.center_y)
+            self.redraw()
+        super(RelativeLayout, self).on_touch_move(touch)
