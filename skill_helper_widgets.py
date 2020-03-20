@@ -3,13 +3,15 @@ from kivy.graphics import Line, Color
 from kivy.uix.textinput import TextInput
 from kivy.clock import Clock
 from kivy.uix.anchorlayout import AnchorLayout
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, NumericProperty
 from kivy.uix.slider import Slider
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.behaviors import DragBehavior
 from kivy.uix.label import Label
-from kivy.uix.widget import Widget
+from kivy.graphics import Triangle, Ellipse
+import numpy as np
+import math
 
 
 def hsv_to_rgb(h, s, v):
@@ -224,12 +226,15 @@ class Node(Label):
 
 
 class Connection(RelativeLayout):
-    direction = ObjectProperty("forward")
+    direction = NumericProperty(0)
 
     def __init__(self, node1, node2, **kwargs):
         super(RelativeLayout, self).__init__(**kwargs)
+        self.arrow_l = 20
+        self.arrow_w = 10
         self.line = None
         self.arrow = None
+        self.points = None
         self.point1 = dict(x=node1.center_x, y=node1.center_y)
         self.point2 = dict(x=node2.center_x, y=node2.center_y)
         self.node1 = node1
@@ -241,9 +246,15 @@ class Connection(RelativeLayout):
             self.canvas.remove(self.line)
         if self.arrow is not None:
             self.canvas.remove(self.arrow)
+        self.points = x1, y1, x2, y2, x3, y3 = self.arrow_points()
         with self.canvas:
             self.line = Line(points=[self.point1['x'], self.point1['y'],
                                      self.point2['x'], self.point2['y']])
+            if self.direction == 2:
+                self.arrow = Ellipse(pos=(x1 - self.arrow_w, y1 - self.arrow_w), size=(self.arrow_w*2, self.arrow_w*2))
+                self.points = (x1 - self.arrow_w, y1 - self.arrow_w, x1 + self.arrow_w, y1 + self.arrow_w*2)
+            else:
+                self.arrow = Triangle(points=[x1, y1, x2, y2, x3, y3])
 
     def on_touch_move(self, touch):
         if self.node1.state == "drag" or self.node2.state == "drag":
@@ -251,3 +262,33 @@ class Connection(RelativeLayout):
             self.point2 = dict(x=self.node2.center_x, y=self.node2.center_y)
             self.redraw()
         super(RelativeLayout, self).on_touch_move(touch)
+
+    def arrow_points(self):
+        a1 = np.array([self.point2['x'], self.point2['y']])
+        a2 = np.array([self.point1['x'], self.point1['y']])
+        if self.direction == 1:
+            a1, a2 = a2, a1
+        a3 = a1 + 0.5 * (a2 - a1)
+        a6 = a1 + (0.5 + self.arrow_l/np.linalg.norm(a2-a1)) * (a2 - a1)
+        k = a6 - a1
+        k = k[1] / k[0]
+
+        y5 = a6[1] + self.arrow_w / math.sqrt(1 + k*k)
+        y7 = a6[1] - self.arrow_w / math.sqrt(1 + k*k)
+        x5 = a6[0] - (y5 - a6[1]) * k
+        x7 = a6[0] - (y7 - a6[1]) * k
+        return int(a3[0]), int(a3[1]), int(x5), int(y5), int(x7), int(y7)
+
+    def on_touch_down(self, touch):
+        if self.collide_bbox(*touch.pos):
+            self.direction = (self.direction + 1) % 3
+        super(RelativeLayout, self).on_touch_down(touch)
+
+    def on_direction(self, instance, value):
+        self.redraw()
+
+    def collide_bbox(self, x, y):
+        px = self.points[::2]
+        py = self.points[1::2]
+        bbox = min(px), min(py), max(px), max(py)
+        return (bbox[0] < x < bbox[2]) and (bbox[1] < y < bbox[3])
