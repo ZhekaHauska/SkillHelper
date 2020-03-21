@@ -9,7 +9,8 @@ from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.behaviors import DragBehavior
 from kivy.uix.label import Label
-from kivy.graphics import Triangle, Ellipse
+from kivy.graphics import Triangle, Ellipse, Rectangle
+from kivy.uix.bubble import Bubble, BubbleButton
 import numpy as np
 import math
 
@@ -183,20 +184,31 @@ class NodeEditor(RelativeLayout):
 class Node(Label):
     state = ObjectProperty("normal")
 
+    def __init__(self, **kwargs):
+        super(Node, self).__init__(**kwargs)
+        self.connected = list()
+
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
             if touch.is_double_tap:
                 self.state = "drag"
                 return True
             else:
-                self.state = "connect"
+                for child in self.parent.children:
+                    if isinstance(child, Node):
+                        if child.state == "connect":
+                            break
+                else:
+                    self.state = "connect"
                 super(Label, self).on_touch_down(touch)
         elif self.state == "connect":
             (x, y) = self.to_parent(*touch.pos)
             for child in self.parent.children:
-                if child.collide_point(x, y) and isinstance(child, Node):
+                if child.collide_point(x, y) and isinstance(child, Node) and child not in self.connected and child is not self:
                     self.state = "normal"
-                    self.parent.add_widget(Connection(self, child))
+                    self.parent.add_widget(Connection(self, child), index=100)
+                    self.connected.append(child)
+                    child.connected.append(self)
                     return True
             else:
                 self.state = "normal"
@@ -227,14 +239,17 @@ class Node(Label):
 
 class Connection(RelativeLayout):
     direction = NumericProperty(0)
+    strength = ObjectProperty(float(0))
 
     def __init__(self, node1, node2, **kwargs):
-        super(RelativeLayout, self).__init__(**kwargs)
+        super(Connection, self).__init__(**kwargs)
         self.arrow_l = 20
         self.arrow_w = 10
+        self.max_line_width = 5
         self.line = None
         self.arrow = None
         self.points = None
+        self.bubble = None
         self.point1 = dict(x=node1.center_x, y=node1.center_y)
         self.point2 = dict(x=node2.center_x, y=node2.center_y)
         self.node1 = node1
@@ -243,13 +258,13 @@ class Connection(RelativeLayout):
 
     def redraw(self):
         if self.line is not None:
-            self.canvas.remove(self.line)
+            self.canvas.before.remove(self.line)
         if self.arrow is not None:
-            self.canvas.remove(self.arrow)
+            self.canvas.before.remove(self.arrow)
         self.points = x1, y1, x2, y2, x3, y3 = self.arrow_points()
-        with self.canvas:
+        with self.canvas.before:
             self.line = Line(points=[self.point1['x'], self.point1['y'],
-                                     self.point2['x'], self.point2['y']])
+                                     self.point2['x'], self.point2['y']], width=self.strength*self.max_line_width)
             if self.direction == 2:
                 self.arrow = Ellipse(pos=(x1 - self.arrow_w, y1 - self.arrow_w), size=(self.arrow_w*2, self.arrow_w*2))
                 self.points = (x1 - self.arrow_w, y1 - self.arrow_w, x1 + self.arrow_w, y1 + self.arrow_w*2)
@@ -281,10 +296,21 @@ class Connection(RelativeLayout):
 
     def on_touch_down(self, touch):
         if self.collide_bbox(*touch.pos):
-            self.direction = (self.direction + 1) % 3
+            if self.bubble is None:
+                self.bubble = ConnectBubble(self)
+                self.bubble.pos_hint = (None, None)
+                self.bubble.x = touch.x - self.bubble.width / 2
+                self.bubble.y = touch.y
+                self.parent.add_widget(self.bubble)
+        else:
+            self.parent.remove_widget(self.bubble)
+            self.bubble = None
         super(RelativeLayout, self).on_touch_down(touch)
 
     def on_direction(self, instance, value):
+        self.redraw()
+
+    def on_strength(self, instance, value):
         self.redraw()
 
     def collide_bbox(self, x, y):
@@ -292,3 +318,9 @@ class Connection(RelativeLayout):
         py = self.points[1::2]
         bbox = min(px), min(py), max(px), max(py)
         return (bbox[0] < x < bbox[2]) and (bbox[1] < y < bbox[3])
+
+
+class ConnectBubble(Bubble):
+    def __init__(self, connection, **kwargs):
+        super(ConnectBubble, self).__init__(**kwargs)
+        self.connection = connection
