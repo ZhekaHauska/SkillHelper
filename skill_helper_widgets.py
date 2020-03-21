@@ -10,7 +10,7 @@ from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.behaviors import DragBehavior
 from kivy.uix.widget import Widget
 from kivy.uix.label import Label
-from kivy.graphics import Triangle, Ellipse, Rectangle
+from kivy.graphics import Triangle, Ellipse, Rectangle, RoundedRectangle
 from kivy.uix.bubble import Bubble, BubbleButton
 from kivy.uix.scatter import ScatterPlane
 from kivy.uix.recycleview import RecycleView
@@ -248,6 +248,7 @@ class Node(Label):
         self.connected = list()
         self.connections = list()
         self.bubble = None
+        self.selected = None
         self.ix = self.x
         self.iy = self.y
 
@@ -307,11 +308,17 @@ class Node(Label):
 
     def on_state(self, instance, value):
         if self.state == "connect":
-            pass
+            with self.canvas.before:
+                Color(rgb=(1, 1, 1))
+                self.selected = RoundedRectangle(pos=(self.x - 5, self.y - 5), size=(self.width + 10, self.height + 10))
         elif self.state == "normal":
-            pass
+            if self.selected is not None:
+                self.canvas.before.remove(self.selected)
+                self.selected = None
         elif self.state == "drag":
-            pass
+            if self.selected is not None:
+                self.canvas.before.remove(self.selected)
+                self.selected = None
 
     def handle_collide(self, x, y):
         if self.x < x < self.x + self.width:
@@ -377,8 +384,13 @@ class Connection(RelativeLayout):
 
         y5 = a6[1] + self.arrow_w / math.sqrt(1 + k*k)
         y7 = a6[1] - self.arrow_w / math.sqrt(1 + k*k)
-        x5 = a6[0] - (y5 - a6[1]) * k
-        x7 = a6[0] - (y7 - a6[1]) * k
+        if math.fabs(k) == math.inf:
+            x5 = a6[0] + self.arrow_w
+            x7 = a6[0] - self.arrow_w
+        else:
+            x5 = a6[0] - (y5 - a6[1]) * k
+            x7 = a6[0] - (y7 - a6[1]) * k
+        # print(a3, x5, y5, x7, y7, k, a6, a1, a2)
         return int(a3[0]), int(a3[1]), int(x5), int(y5), int(x7), int(y7)
 
     def on_touch_down(self, touch):
