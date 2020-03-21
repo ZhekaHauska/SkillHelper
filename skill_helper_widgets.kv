@@ -77,12 +77,17 @@
 
 <Node>:
     size_hint: None, None
-    size: self.texture_size
     color: 0, 0, 0, 1
+    handle_height: 20
     canvas.before:
         RoundedRectangle:
-            pos: self.x - 5, self.y - 5
-            size: self.width + 10, self.height + 10
+            pos: self.x, self.y
+            size: self.width, self.height - self.handle_height
+        Color:
+            hsv: 0.0, 0.8, 0.5
+        RoundedRectangle:
+            pos: self.x, self.y + self.height - self.handle_height
+            size: self.width, self.handle_height
 
 <ConnectBubble>:
     orientation: "vertical"
@@ -102,8 +107,30 @@
         text: "remove"
         on_press:
             root.connection.node1.connected.remove(root.connection.node2)
+            root.connection.node1.connections.remove(root.connection)
             root.connection.node2.connected.remove(root.connection.node1)
+            root.connection.node2.connections.remove(root.connection)
             root.parent.remove_widget(root.connection)
             root.parent.remove_widget(root)
 
+<NodeBubble>:
+    orientation: "vertical"
+    BubbleButton:
+        text: "connect"
+        on_press:
+            root.node.state = "connect"
+            root.node.bubble = None
+            root.parent.remove_widget(root)
+    BubbleButton:
+        text: "remove"
+        on_press:
+            root.remove_node()
 
+
+<Handle>:
+    canvas.before:
+        Color:
+            hsv: 0.1, 0.8, 0.8
+        Rectangle:
+            pos: self.pos
+            size: self.size

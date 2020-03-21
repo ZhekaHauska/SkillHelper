@@ -8,6 +8,7 @@ from kivy.uix.slider import Slider
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.behaviors import DragBehavior
+from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.graphics import Triangle, Ellipse, Rectangle
 from kivy.uix.bubble import Bubble, BubbleButton
@@ -187,54 +188,83 @@ class Node(Label):
     def __init__(self, **kwargs):
         super(Node, self).__init__(**kwargs)
         self.connected = list()
+        self.connections = list()
+        self.bubble = None
+        self.ix = self.x
+        self.iy = self.y
 
     def on_touch_down(self, touch):
-        if self.collide_point(*touch.pos):
-            if touch.is_double_tap:
-                self.state = "drag"
-                return True
+        if self.widget_collide(*touch.pos):
+            for child in self.parent.children:
+                if isinstance(child, Node):
+                    if child.state == "connect":
+                        super(Node, self).on_touch_down(touch)
+                        break
             else:
-                for child in self.parent.children:
-                    if isinstance(child, Node):
-                        if child.state == "connect":
-                            break
-                else:
-                    self.state = "connect"
-                super(Label, self).on_touch_down(touch)
+                if self.bubble is None:
+                    self.bubble = NodeBubble(self)
+                    self.bubble.pos_hint = (None, None)
+                    self.bubble.x = touch.x - self.bubble.width / 2
+                    self.bubble.y = touch.y
+                    self.parent.add_widget(self.bubble)
+                    return True
         elif self.state == "connect":
             (x, y) = self.to_parent(*touch.pos)
             for child in self.parent.children:
                 if child.collide_point(x, y) and isinstance(child, Node) and child not in self.connected and child is not self:
                     self.state = "normal"
-                    self.parent.add_widget(Connection(self, child), index=100)
+                    connection = Connection(self, child)
+                    self.parent.add_widget(connection, index=100)
+                    self.connections.append(connection)
+                    child.connections.append(connection)
                     self.connected.append(child)
                     child.connected.append(self)
                     return True
             else:
                 self.state = "normal"
                 super(Label, self).on_touch_down(touch)
+        elif self.handle_collide(*touch.pos):
+            self.ix = touch.x
+            self.iy = touch.y
+            self.state = "grab"
+            return True
         else:
+            if self.bubble is not None:
+                self.parent.remove_widget(self.bubble)
+                self.bubble = None
             super(Label, self).on_touch_down(touch)
 
-    def on_touch_up(self, touch):
-        if self.state == "drag":
-            self.state = "normal"
-        super(Label, self).on_touch_up(touch)
-
     def on_touch_move(self, touch):
-        (x, y) = self.parent.to_parent(*touch.pos)
-        if self.state == "drag" and self.parent.collide_point(x, y):
-            self.center_x = touch.x
-            self.center_y = touch.y
-        super(Label, self).on_touch_move(touch)
+        if self.state == "grab":
+            self.x += touch.x - self.ix
+            self.y += touch.y - self.iy
+            self.ix += touch.x - self.ix
+            self.iy += touch.y - self.iy
+            return True
+        super(Node, self).on_touch_move(touch)
+
+    def on_touch_up(self, touch):
+        if self.state == "grab":
+            self.state = "normal"
+        super(Node, self).on_touch_up(touch)
 
     def on_state(self, instance, value):
-        if self.state == "drag":
-            self.text = "drag"
-        elif self.state == "connect":
+        if self.state == "connect":
             self.text = "connect"
         elif self.state == "normal":
             self.text = "normal"
+        elif self.state == "grab":
+            self.text = "grab"
+
+    def handle_collide(self, x, y):
+        if self.x < x < self.x + self.width:
+            if self.y + self.height - self.handle_height < y < self.y + self.height:
+                return True
+
+    def widget_collide(self, x, y):
+        if self.x < x < self.x + self.width:
+            if self.y < y < self.y + self.height - self.handle_height:
+                return True
 
 
 class Connection(RelativeLayout):
@@ -324,3 +354,25 @@ class ConnectBubble(Bubble):
     def __init__(self, connection, **kwargs):
         super(ConnectBubble, self).__init__(**kwargs)
         self.connection = connection
+
+
+class NodeBubble(Bubble):
+    def __init__(self, node, **kwargs):
+        super(NodeBubble, self).__init__(**kwargs)
+        self.node = node
+
+    def remove_node(self):
+        for connection in self.node.connections:
+            if self.node is connection.node2:
+                connection.node1.connected.remove(self.node)
+                connection.node1.connections.remove(connection)
+            else:
+                connection.node2.connected.remove(self.node)
+                connection.node2.connections.remove(connection)
+            self.parent.remove_widget(connection)
+        self.parent.remove_widget(self.node)
+        self.parent.remove_widget(self)
+
+
+class Handle(Widget):
+    pass
