@@ -7,18 +7,9 @@
         NodeEditor:
             id: _node_editor
             auto_bring_to_front: False
-            add_button: _add_button
             screen_manager: root.manager
-            Node:
-            Node:
-            Node:
         BoxLayout:
             size_hint: 1, 0.1
-            Button:
-                id: _add_button
-                size_hint: 0.1, 1
-                text: "Add"
-                on_press: root.node_editor.show_bubble()
             Slider:
                 min: 0.5
                 max: 2

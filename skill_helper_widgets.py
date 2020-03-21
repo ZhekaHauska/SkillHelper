@@ -184,17 +184,21 @@ class NodeEditor(ScatterPlane):
         super(NodeEditor, self).__init__(**kwargs)
         self.add_bubble = None
 
-    def show_bubble(self):
-        if self.add_bubble is None:
-            self.data = dict(skills=self.screen_manager.db_skills.items,
-                             tasks=self.screen_manager.db_tasks.items)
-            self.add_bubble = AddNodeBubble(self.data)
-            self.add_bubble.x = 0
-            self.add_bubble.y = 0
-            self.add_widget(self.add_bubble)
-        else:
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            if touch.is_double_tap:
+                self.show_bubble(*self.to_local(*touch.pos))
+        super(NodeEditor, self).on_touch_down(touch)
+
+    def show_bubble(self, x, y):
+        if self.add_bubble is not None:
             self.remove_widget(self.add_bubble)
             self.add_bubble = None
+        self.data = dict(skills=self.screen_manager.db_skills.items,
+                         tasks=self.screen_manager.db_tasks.items)
+        self.add_bubble = AddNodeBubble(self.data)
+        self.add_bubble.pos = (x - self.add_bubble.width/2, y)
+        self.add_widget(self.add_bubble)
 
 
 class AddNodeBubble(Bubble):
@@ -211,12 +215,22 @@ class AddNodeBubble(Bubble):
     def show_skills_view(self, instance):
         self.remove_widget(self.skill_button)
         self.remove_widget(self.task_button)
+        self.height *= 2
+        self.width *= 1.2
         self.add_widget(NodesView(self.data['skills']))
 
     def show_tasks_view(self, instance):
         self.remove_widget(self.skill_button)
         self.remove_widget(self.task_button)
+        self.height *= 2
+        self.width *= 1.2
         self.add_widget(NodesView(self.data['tasks']))
+
+    def on_touch_down(self, touch):
+        if not self.collide_point(*touch.pos) and not touch.is_double_tap:
+            self.parent.add_bubble = None
+            self.parent.remove_widget(self)
+        super(AddNodeBubble, self).on_touch_down(touch)
 
 
 class NodesView(RecycleView):
@@ -242,7 +256,8 @@ class Node(Label):
             for child in self.parent.children:
                 if isinstance(child, Node):
                     if child.state == "connect":
-                        return True
+                        super(Node, self).on_touch_down(touch)
+                        break
             else:
                 if self.bubble is None:
                     self.bubble = NodeBubble(self)
@@ -269,7 +284,7 @@ class Node(Label):
         elif self.handle_collide(*touch.pos):
             self.ix = touch.x
             self.iy = touch.y
-            self.state = "grab"
+            self.state = "drag"
             return True
         else:
             if self.bubble is not None:
@@ -278,7 +293,7 @@ class Node(Label):
             super(Label, self).on_touch_down(touch)
 
     def on_touch_move(self, touch):
-        if self.state == "grab":
+        if self.state == "drag":
             self.x += touch.x - self.ix
             self.y += touch.y - self.iy
             self.ix += touch.x - self.ix
@@ -286,7 +301,7 @@ class Node(Label):
         super(Node, self).on_touch_move(touch)
 
     def on_touch_up(self, touch):
-        if self.state == "grab":
+        if self.state == "drag":
             self.state = "normal"
         super(Node, self).on_touch_up(touch)
 
@@ -295,7 +310,7 @@ class Node(Label):
             pass
         elif self.state == "normal":
             pass
-        elif self.state == "grab":
+        elif self.state == "drag":
             pass
 
     def handle_collide(self, x, y):
@@ -424,5 +439,6 @@ class NodeItem(BubbleButton):
     def on_press(self):
         node = Node()
         node.text = self.name
+        node.pos = self.parent.parent.parent.parent.pos
         self.parent.parent.parent.parent.parent.add_widget(node, index=0)
         super(NodeItem, self).on_press()

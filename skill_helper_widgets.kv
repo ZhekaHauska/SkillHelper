@@ -76,18 +76,24 @@
     value_track: True
 
 <Node>:
-    pos_hint: (0.5, 0.5)
+    pos_hint: None, None
     color: 0, 0, 0, 1
     handle_height: 20
+    text_size: self.size
+    halign: "center"
+    valign: "center"
     canvas.before:
         RoundedRectangle:
             pos: self.x, self.y
             size: self.width, self.height - self.handle_height
+            radius: [(0, 0), (0, 0), (10, 10), (10, 10)]
         Color:
-            hsv: 0.0, 0.8, 0.5
+            hsv: 0.5, 0.8, 0.5
         RoundedRectangle:
             pos: self.x, self.y + self.height - self.handle_height
             size: self.width, self.handle_height
+            radius: [(10, 10), (10, 10), (0, 0), (0, 0)]
+
 
 <ConnectBubble>:
     orientation: "vertical"
@@ -138,6 +144,9 @@
 <NodeItem>:
     name: "name"
     text: self.name
+    text_size: self.size
+    halign: "center"
+    valign: "center"
 
 <NodesView>:
     bar_width: 5
