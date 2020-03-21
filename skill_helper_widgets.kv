@@ -76,7 +76,7 @@
     value_track: True
 
 <Node>:
-    size_hint: None, None
+    pos_hint: (0.5, 0.5)
     color: 0, 0, 0, 1
     handle_height: 20
     canvas.before:
@@ -134,3 +134,18 @@
         Rectangle:
             pos: self.pos
             size: self.size
+
+<NodeItem>:
+    name: "name"
+    text: self.name
+
+<NodesView>:
+    bar_width: 5
+    scroll_type: ["bars", "content"]
+    RecycleBoxLayout:
+        default_size: None, dp(56)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+        spacing: 5

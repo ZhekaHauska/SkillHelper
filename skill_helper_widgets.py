@@ -12,6 +12,8 @@ from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.graphics import Triangle, Ellipse, Rectangle
 from kivy.uix.bubble import Bubble, BubbleButton
+from kivy.uix.scatter import ScatterPlane
+from kivy.uix.recycleview import RecycleView
 import numpy as np
 import math
 
@@ -177,9 +179,51 @@ class ImportanceSlider(Slider):
         self.value_track_color = *hsv_to_rgb(*byr_colormap(value)), 1
 
 
-class NodeEditor(RelativeLayout):
-    def add_node(self, node):
-        self.add_widget(node)
+class NodeEditor(ScatterPlane):
+    def __init__(self, **kwargs):
+        super(NodeEditor, self).__init__(**kwargs)
+        self.add_bubble = None
+
+    def show_bubble(self):
+        if self.add_bubble is None:
+            self.data = dict(skills=self.screen_manager.db_skills.items,
+                             tasks=self.screen_manager.db_tasks.items)
+            self.add_bubble = AddNodeBubble(self.data)
+            self.add_bubble.x = 0
+            self.add_bubble.y = 0
+            self.add_widget(self.add_bubble)
+        else:
+            self.remove_widget(self.add_bubble)
+            self.add_bubble = None
+
+
+class AddNodeBubble(Bubble):
+    def __init__(self, data, **kwargs):
+        super(AddNodeBubble, self).__init__(**kwargs)
+        self.data = data
+        self.skill_button = BubbleButton(text="skill")
+        self.skill_button.bind(on_press=self.show_skills_view)
+        self.task_button = BubbleButton(text="task")
+        self.task_button.bind(on_press=self.show_tasks_view)
+        self.add_widget(self.skill_button)
+        self.add_widget(self.task_button)
+
+    def show_skills_view(self, instance):
+        self.remove_widget(self.skill_button)
+        self.remove_widget(self.task_button)
+        self.add_widget(NodesView(self.data['skills']))
+
+    def show_tasks_view(self, instance):
+        self.remove_widget(self.skill_button)
+        self.remove_widget(self.task_button)
+        self.add_widget(NodesView(self.data['tasks']))
+
+
+class NodesView(RecycleView):
+    def __init__(self, data, **kwargs):
+        super(NodesView, self).__init__(**kwargs)
+        self.viewclass = "NodeItem"
+        self.data = data
 
 
 class Node(Label):
@@ -198,8 +242,7 @@ class Node(Label):
             for child in self.parent.children:
                 if isinstance(child, Node):
                     if child.state == "connect":
-                        super(Node, self).on_touch_down(touch)
-                        break
+                        return True
             else:
                 if self.bubble is None:
                     self.bubble = NodeBubble(self)
@@ -240,7 +283,6 @@ class Node(Label):
             self.y += touch.y - self.iy
             self.ix += touch.x - self.ix
             self.iy += touch.y - self.iy
-            return True
         super(Node, self).on_touch_move(touch)
 
     def on_touch_up(self, touch):
@@ -250,11 +292,11 @@ class Node(Label):
 
     def on_state(self, instance, value):
         if self.state == "connect":
-            self.text = "connect"
+            pass
         elif self.state == "normal":
-            self.text = "normal"
+            pass
         elif self.state == "grab":
-            self.text = "grab"
+            pass
 
     def handle_collide(self, x, y):
         if self.x < x < self.x + self.width:
@@ -376,3 +418,11 @@ class NodeBubble(Bubble):
 
 class Handle(Widget):
     pass
+
+
+class NodeItem(BubbleButton):
+    def on_press(self):
+        node = Node()
+        node.text = self.name
+        self.parent.parent.parent.parent.parent.add_widget(node, index=0)
+        super(NodeItem, self).on_press()
