@@ -34,6 +34,14 @@
             BoxLayout:
                 orientation: "vertical"
                 Label:
+                    text: "Group"
+                SHTextInput:
+                    id: _group
+                    text: ""
+                    multiline: False
+            BoxLayout:
+                orientation: "vertical"
+                Label:
                     text: "Importance: " + str(round(_slider.value, 2))
                 ImportanceSlider:
                     id: _slider
@@ -43,5 +51,6 @@
             skill_description: _skill_description
             skill_time: _skill_time
             skill_importance: _slider.value
+            skill_group: _group.text
             text: "Add"
             on_press: self.add_skill()

@@ -1,4 +1,5 @@
-<SkillsScreen@Screen>:
+#:import skills_screen skills_screen
+<SkillsScreen>:
     name: "skills_screen"
     items_view: _items_view
     stats: _stats
@@ -12,14 +13,9 @@
                 size_hint: 0.5, 1
                 orientation: 'horizontal'
                 Button:
-                    text: "Skills"
-                    state: "down"
-                    disabled: True
-                Button:
-                    text: "Tasks"
+                    text: "Back"
                     on_press:
-                        root.manager.current = "tasks_screen"
-                        root.manager.db_tasks.refresh_stats()
+                        root.manager.current = "group_screen"
         SkillsView:
             id: _items_view
             screen_manager: root.manager

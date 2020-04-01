@@ -36,6 +36,14 @@
             BoxLayout:
                 orientation: "vertical"
                 Label:
+                    text: "Group"
+                SHTextInput:
+                    id: _group
+                    text: ""
+                    multiline: False
+            BoxLayout:
+                orientation: "vertical"
+                Label:
                     text: "Importance: " + str(round(_slider.value, 2))
                 ImportanceSlider:
                     id: _slider
@@ -46,5 +54,6 @@
             item_description: _item_description
             item_time: _item_time
             item_importance: _slider.value
+            item_group: _group.text
             text: "Save"
             on_press: self.edit_item()

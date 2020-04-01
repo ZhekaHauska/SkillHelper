@@ -1,6 +1,6 @@
-<TasksScreen@Screen>:
-    name: "tasks_screen"
-    items_view: _items_view
+#:import group_screen group_screen
+<GroupScreen>:
+    name: "group_screen"
     stats: _stats
     BoxLayout:
         orientation: 'vertical'
@@ -13,17 +13,18 @@
                 orientation: 'horizontal'
                 Button:
                     text: "Skills"
-                    on_press:
-                        root.manager.current = "group_screen"
-                        root.manager.db_skills.refresh_stats()
-                Button:
-                    text: "Tasks"
                     state: "down"
                     disabled: True
-        TasksView:
-            id: _items_view
+                Button:
+                    text: "Tasks"
+                    on_press:
+                        root.manager.current = "tasks_screen"
+                        root.manager.db_tasks.refresh_stats()
+        GroupView:
+            id: _group_view
             screen_manager: root.manager
-        TaskControlPanel:
+            groups: root.manager.db_skills.groups
+        SkillControlPanel:
             screen_manager: root.manager
             size_hint: 1, 0.1
         Label:

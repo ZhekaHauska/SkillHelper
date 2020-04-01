@@ -23,7 +23,7 @@ class Formats:
 
 
 class Database:
-    def __init__(self, db_name, view_screen, info_screen, edit_screen):
+    def __init__(self, db_name, group_screen=None, view_screen=None, info_screen=None, edit_screen=None):
         self.db_name = db_name
         # when your week starts
         self.start_week = week_days['monday']
@@ -31,7 +31,10 @@ class Database:
         self.view_screen = view_screen
         self.info_screen = info_screen
         self.edit_screen = edit_screen
+        self.group_screen = group_screen
         self.formats = Formats()
+        self.current_group = None
+        self.groups = None
         # try to load database from disk
         with open(f'{self.db_name}.yaml') as file:
             self.data = yaml.load(file, Loader=yaml.Loader)
@@ -42,13 +45,18 @@ class Database:
         try:
             self.history = pd.read_csv(f'{self.db_name}_history.csv', index_col=0, parse_dates=True)
         except FileNotFoundError:
-            self.history = pd.DataFrame(columns=['name', 'time', 'importance', 'dtime'])
+            self.history = pd.DataFrame(columns=['name', 'time', 'importance', 'dtime', 'group'])
 
+        self.refresh_groups()
         self.recalculate_priority()
         self.sort_items()
         self.save()
 
     # refreshing views
+    def refresh_groups(self):
+        if self.db_name == "skills":
+            self.groups = set([x['group'] for x in self.items])
+
     def refresh_edit(self, idx):
         item = self.items[idx]
         self.edit_screen.item_name.text = str(item['name'])
@@ -72,27 +80,39 @@ class Database:
         if self.show_hidden:
             self.view_screen.items_view.data = self.hidden_items
         else:
-            self.view_screen.items_view.data = self.items
+            items = list()
+            for x in self.items:
+                if x['group'] == self.current_group:
+                    items.append(x)
+            self.view_screen.items_view.data = items
         self.view_screen.items_view.refresh_from_data()
 
     def refresh_stats(self):
         today = time.localtime()
+        cgroup_history = self.history.query(f'group == "{self.current_group}"')
         if today.tm_wday >= self.start_week:
             wdays = today.tm_wday - self.start_week
         else:
             wdays = 7 - (self.start_week - today.tm_wday)
         # today
         try:
-            today_summary = self.history[f'{today.tm_year}-{today.tm_mon}-{today.tm_mday}']['dtime'].sum()
+            today_full_summary = self.history[f'{today.tm_year}-{today.tm_mon}-{today.tm_mday}']['dtime'].sum()
+            today_group_summary = cgroup_history[f'{today.tm_year}-{today.tm_mon}-{today.tm_mday}']['dtime'].sum()
         except KeyError:
-            today_summary = 0.0
+            today_full_summary = 0.0
+            today_group_summary = 0.0
         # week
         try:
-            week_summary = self.history[f'{today.tm_year}-{today.tm_mon}-{today.tm_mday - wdays}':
+            week_full_summary = self.history[f'{today.tm_year}-{today.tm_mon}-{today.tm_mday - wdays}':
+                                    f'{today.tm_year}-{today.tm_mon}-{today.tm_mday}']['dtime'].sum()
+            week_group_summary = cgroup_history[f'{today.tm_year}-{today.tm_mon}-{today.tm_mday - wdays}':
                                     f'{today.tm_year}-{today.tm_mon}-{today.tm_mday}']['dtime'].sum()
         except KeyError:
-            week_summary = 0.0
-        self.view_screen.stats.text = 'Today: {} hours  This week: {} hours'.format(today_summary, week_summary)
+            week_full_summary = 0.0
+            week_group_summary = 0.0
+        self.view_screen.stats.text = 'Today: {} hours  This week: {} hours'.format(today_group_summary, week_group_summary)
+        if self.group_screen is not None:
+            self.group_screen.stats.text = 'Today: {} hours  This week: {} hours'.format(today_full_summary, week_full_summary)
 
     # data manipulations
     def add_item(self, item):
@@ -103,6 +123,7 @@ class Database:
         self.recalculate_max()
         self.recalculate_priority()
         self.sort_items()
+        self.refresh_groups()
 
         self.refresh_view()
         self.save()
@@ -113,6 +134,7 @@ class Database:
         self.recalculate_max()
         self.recalculate_priority()
         self.sort_items()
+        self.refresh_groups()
 
         self.refresh_view()
         self.save()
@@ -136,6 +158,7 @@ class Database:
         self.recalculate_priority()
         self.sort_items()
         self.recalculate_max()
+        self.refresh_groups()
 
         self.refresh_view()
         self.save()
@@ -220,9 +243,9 @@ class Database:
                     time2w = 0
             etime = pow(1.2, x['importance'] // 0.05) * self.expected_time / total_importance
             priority = 1 - time2w / etime
-            x['priority'] = priority
-            x['etime'] = etime
-            x['time2w'] = time2w
+            x['priority'] = float(priority)
+            x['etime'] = float(etime)
+            x['time2w'] = float(time2w)
 
     def sort_items(self):
         self.items = sorted(self.items, key=lambda x: x['priority'], reverse=True)
@@ -235,7 +258,8 @@ class Database:
             entry['name'],
             entry['time'],
             entry['importance'],
-            dtime
+            dtime,
+            entry['group']
         ]
 
 
