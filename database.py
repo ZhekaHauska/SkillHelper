@@ -1,5 +1,6 @@
 import yaml
 import pandas as pd
+from datetime import date, timedelta
 import time
 
 week_days = {'monday': 0,
@@ -102,11 +103,13 @@ class Database:
             today_full_summary = 0.0
             today_group_summary = 0.0
         # week
+        start = (date.today() - timedelta(days=wdays)).isoformat()
+        end = date.today().isoformat()
         try:
-            week_full_summary = self.history[f'{today.tm_year}-{today.tm_mon}-{today.tm_mday - wdays}':
-                                    f'{today.tm_year}-{today.tm_mon}-{today.tm_mday}']['dtime'].sum()
-            week_group_summary = cgroup_history[f'{today.tm_year}-{today.tm_mon}-{today.tm_mday - wdays}':
-                                    f'{today.tm_year}-{today.tm_mon}-{today.tm_mday}']['dtime'].sum()
+            week_full_summary = self.history[start:
+                                             end]['dtime'].sum()
+            week_group_summary = cgroup_history[start:
+                                                end]['dtime'].sum()
         except KeyError:
             week_full_summary = 0.0
             week_group_summary = 0.0
