@@ -218,14 +218,14 @@ class AddNodeBubble(Bubble):
         self.remove_widget(self.task_button)
         self.height *= 2
         self.width *= 1.2
-        self.add_widget(NodesView(self.data['skills']))
+        self.add_widget(NodesView(self.data['skills'], "skill"))
 
     def show_tasks_view(self, instance):
         self.remove_widget(self.skill_button)
         self.remove_widget(self.task_button)
         self.height *= 2
         self.width *= 1.2
-        self.add_widget(NodesView(self.data['tasks']))
+        self.add_widget(NodesView(self.data['tasks'], "task"))
 
     def on_touch_down(self, touch):
         if not self.collide_point(*touch.pos) and not touch.is_double_tap:
@@ -235,16 +235,24 @@ class AddNodeBubble(Bubble):
 
 
 class NodesView(RecycleView):
-    def __init__(self, data, **kwargs):
+    def __init__(self, data, type, **kwargs):
         super(NodesView, self).__init__(**kwargs)
         self.viewclass = "NodeItem"
         self.data = data
+        self.type = type
 
 
 class Node(Label):
     state = ObjectProperty("normal")
 
-    def __init__(self, **kwargs):
+    def __init__(self, type, **kwargs):
+        self.type = type
+        if self.type == "skill":
+            self.h_color = (0.7, 0.8, 1)
+        elif self.type == "task":
+            self.h_color = (0.3, 0.8, 1)
+        else:
+            self.h_color = (0.5, 0.8, 1)
         super(Node, self).__init__(**kwargs)
         self.connected = list()
         self.connections = list()
@@ -450,7 +458,7 @@ class Handle(Widget):
 
 class NodeItem(BubbleButton):
     def on_press(self):
-        node = Node()
+        node = Node(type=self.parent.parent.type)
         node.text = self.name
         node.pos = self.parent.parent.parent.parent.pos
         self.parent.parent.parent.parent.parent.add_widget(node, index=0)
