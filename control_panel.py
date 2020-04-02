@@ -5,5 +5,9 @@ class SkillControlPanel(AnchorLayout):
     pass
 
 
+class SkillControlGroupPanel(AnchorLayout):
+    pass
+
+
 class TaskControlPanel(AnchorLayout):
     pass

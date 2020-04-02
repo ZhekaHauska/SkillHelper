@@ -11,6 +11,7 @@
                 text: "Back"
                 on_press:
                     root.save_layout()
+                    root.calculate_importance()
                     root.manager.current = "group_screen"
             Label:
         BoxLayout:

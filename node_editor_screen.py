@@ -40,6 +40,10 @@ class NodeEditorScreen(Screen):
                     self.node_editor.add_widget(c, index=100)
                     c.strength = connection['strength']
                     c.direction = connection['direction']
+                    node1.connections.append(c)
+                    node1.connected.append(node2)
+                    node2.connected.append(node1)
+                    node2.connections.append(c)
 
     def save_layout(self):
         nodes = list()
@@ -65,7 +69,8 @@ class NodeEditorScreen(Screen):
     def calculate_importance(self):
         self.size_skills = len(self.manager.db_skills.items)
         self.size_tasks = len(self.manager.db_tasks.items)
-        D = np.zeros((self.size_skills+self.size_tasks, self.size_skills+self.size_tasks))
+        D = np.eye(self.size_skills+self.size_tasks)
+        d = np.eye(self.size_skills+self.size_tasks)
 
         for child in self.node_editor.children:
             if isinstance(child, Connection):
@@ -78,17 +83,28 @@ class NodeEditorScreen(Screen):
                 else:
                     D[col, row] = child.strength
 
+        for row in range(0, D.shape[0]):
+            d[row, row] = self.importance(D, row)
+
+        # normalize
+        d = d - d.min()
+        d /= d.max()
+
         for row in range(0, self.size_skills):
-            self.manager.db_skills[row]['importance'] = self.importance(D, row)
+            self.manager.db_skills.items[row]['importance'] = float(0.5*(d[row, row] + self.manager.db_skills.items[row]['importance']))
 
         for row in range(self.size_skills, D.shape[0]):
-            self.manager.db_skills[row - self.size_skills]['importance'] = self.importance(D, row)
+            self.manager.db_tasks.items[row - self.size_skills]['importance'] = float(0.5*(d[row, row] +
+                                                                                     self.manager.db_tasks.items[row - self.size_skills]['importance']))
+
+        self.manager.db_skills.recalculate_priority()
+        self.manager.db_tasks.recalculate_priority()
 
     def find_item(self, name, type):
         if type == "skill":
-            idx = self.manager.db_skill.find_item(name)
+            idx = self.manager.db_skills.find_item(name)
         else:
-            idx = self.manager.db_task.find_item(name) + self.size_skills
+            idx = self.manager.db_tasks.find_item(name) + self.size_skills
         return idx
 
     def importance(self, D, row):

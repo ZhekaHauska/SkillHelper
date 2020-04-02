@@ -36,6 +36,7 @@ class Database:
         self.formats = Formats()
         self.current_group = None
         self.groups = None
+        self.sensitivity = 1.2
         # try to load database from disk
         with open(f'{self.db_name}.yaml') as file:
             self.data = yaml.load(file, Loader=yaml.Loader)
@@ -55,8 +56,7 @@ class Database:
 
     # refreshing views
     def refresh_groups(self):
-        if self.db_name == "skills":
-            self.groups = set([x['group'] for x in self.items])
+        self.groups = set([x['group'] for x in self.items])
 
     def refresh_edit(self, idx):
         item = self.items[idx]
@@ -65,6 +65,7 @@ class Database:
         self.edit_screen.item_description.text = item['description']
         self.edit_screen.item_importance.value = item['importance']
         self.edit_screen.curr_item = item
+        self.edit_screen.item_group.text = item['group']
 
     def refresh_info(self, idx):
         if self.show_hidden:
@@ -78,14 +79,23 @@ class Database:
         self.info_screen.toggle_view()
 
     def refresh_view(self):
-        if self.show_hidden:
-            self.view_screen.items_view.data = self.hidden_items
+        items = list()
+        if self.current_group is None:
+            if self.show_hidden:
+                self.view_screen.items_view.data = self.hidden_items
+            else:
+                self.view_screen.items_view.data = self.items
         else:
-            items = list()
-            for x in self.items:
-                if x['group'] == self.current_group:
-                    items.append(x)
-            self.view_screen.items_view.data = items
+            if self.show_hidden:
+                for x in self.hidden_items:
+                    if x['group'] == self.current_group:
+                        items.append(x)
+                self.view_screen.items_view.data = items
+            else:
+                for x in self.items:
+                    if x['group'] == self.current_group:
+                        items.append(x)
+                self.view_screen.items_view.data = items
         self.view_screen.items_view.refresh_from_data()
 
     def refresh_stats(self):
@@ -233,7 +243,7 @@ class Database:
 
         total_importance = 0
         for x in self.items:
-            total_importance += pow(1.2, x['importance'] // 0.05)
+            total_importance += pow(self.sensitivity, x['importance'])
 
         for x in self.items:
             if self.history.empty:
@@ -244,7 +254,7 @@ class Database:
                     time2w = time2w.iloc[-1]
                 else:
                     time2w = 0
-            etime = pow(1.2, x['importance'] // 0.05) * self.expected_time / total_importance
+            etime = pow(self.sensitivity, x['importance']) * self.expected_time / total_importance
             priority = 1 - time2w / etime
             x['priority'] = float(priority)
             x['etime'] = float(etime)
@@ -264,6 +274,13 @@ class Database:
             dtime,
             entry['group']
         ]
+
+    def find_item(self, name):
+        for x in self.items:
+            if x['name'] == name:
+                return x['item_id']
+        else:
+            return None
 
 
 class SkillsDatabase(Database):
