@@ -180,8 +180,9 @@ class ImportanceSlider(Slider):
 
 
 class NodeEditor(ScatterPlane):
-    def __init__(self, **kwargs):
+    def __init__(self, screen_manager, **kwargs):
         super(NodeEditor, self).__init__(**kwargs)
+        self.screen_manager = screen_manager
         self.add_bubble = None
 
     def on_touch_down(self, touch):

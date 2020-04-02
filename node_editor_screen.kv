@@ -1,13 +1,18 @@
 #:import node_editor_screen node_editor_screen
 <NodeEditorScreen>:
     name: "node_editor_screen"
-    node_editor: _node_editor
     BoxLayout:
         orientation: "vertical"
-        NodeEditor:
-            id: _node_editor
-            auto_bring_to_front: False
-            screen_manager: root.manager
+        GridLayout:
+            size_hint: (1, 0.1)
+            rows: 1
+            Button:
+                size_hint: (0.1, 1)
+                text: "Back"
+                on_press:
+                    root.save_layout()
+                    root.manager.current = "group_screen"
+            Label:
         BoxLayout:
             size_hint: 1, 0.1
             Slider:
