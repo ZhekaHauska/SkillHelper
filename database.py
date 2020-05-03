@@ -201,7 +201,8 @@ class Database:
         with open(f'{self.db_name}.yaml', 'w') as file:
             yaml.dump(dict(expected_time=self.expected_time,
                            items=self.items,
-                           hidden=self.hidden_items), file, Dumper=yaml.Dumper)
+                           hidden=self.hidden_items), file, Dumper=yaml.Dumper,
+                           allow_unicode=True)
 
         self.history.to_csv(f'{self.db_name}_history.csv')
 

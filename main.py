@@ -34,7 +34,7 @@ class SkillHelperApp(App):
     def build(self):
         # link database and interface
         db_skills = Database("skills")
-        db_tasks = Database("skills")
+        db_tasks = Database("tasks")
         sm = SkillHelperScreenManager(db_skills=db_skills, db_tasks=db_tasks)
 
         db_skills.view_screen = sm.skills_screen

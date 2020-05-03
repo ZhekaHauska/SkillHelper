@@ -4,22 +4,6 @@
     stats: _stats
     BoxLayout:
         orientation: 'vertical'
-        AnchorLayout:
-            size_hint: 1, 0.1
-            anchor_x: 'left'
-            anchor_y: 'top'
-            BoxLayout:
-                size_hint: 0.5, 1
-                orientation: 'horizontal'
-                Button:
-                    text: "Skills"
-                    state: "down"
-                    disabled: True
-                Button:
-                    text: "Tasks"
-                    on_press:
-                        root.manager.current = "tasks_screen"
-                        root.manager.db_tasks.refresh_stats()
         GroupView:
             id: _group_view
             screen_manager: root.manager
