@@ -119,6 +119,8 @@ class SkillItem(Item):
             self.selected = None
             self.parent.parent.screen_manager.current = 'skill_info_screen'
             self.parent.parent.screen_manager.db_skills.refresh_info(self.item_id)
+            self.parent.parent.screen_manager.db_tasks.current_group = self.name
+            self.parent.parent.screen_manager.db_tasks.refresh_view()
             return True
         return super(SkillItem, self).on_touch_up(touch)
 

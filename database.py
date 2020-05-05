@@ -12,91 +12,43 @@ week_days = {'monday': 0,
              'sunday': 6}
 
 
-class Formats:
-    def name_format(self, name):
-        return name
-
-    def time_format(self, time):
-        return f"Total time: {round(time, 2)} hours"
-
-    def description_format(self, description):
-        return description
-
-
 class Database:
-    def __init__(self, db_name, group_screen=None, view_screen=None, info_screen=None, edit_screen=None):
+    def __init__(self, db_name):
+        # profile
         self.db_name = db_name
         # when your week starts
         self.start_week = week_days['monday']
-        self.show_hidden = False
-        self.view_screen = view_screen
-        self.info_screen = info_screen
-        self.edit_screen = edit_screen
-        self.group_screen = group_screen
-        self.formats = Formats()
+        # state
         self.current_group = None
-        self.groups = None
+        self.show_hidden = False
+        # settings
         self.sensitivity = 1.2
         # try to load database from disk
         with open(f'{self.db_name}.yaml') as file:
             self.data = yaml.load(file, Loader=yaml.Loader)
-            self.items = self.data['items']
-            self.hidden_items = self.data['hidden']
-            self.expected_time = self.data['expected_time']
+
+            self.data_skills = self.data['skills']
+            self.skills = self.data_skills['items']
+            self.hidden_skills = self.data_skills['hidden']
+            self.expected_time = self.data_skills['expected_time']
+
+            self.data_tasks = self.data['tasks']
+            self.tasks = self.data_tasks['items']
+            self.hidden_tasks = self.data_tasks['hidden']
+            self.expected_time = self.data_tasks['expected_time']
+
+            self.stats = self.data['stats']
+            self.groups = self.data['groups']
+
         # try to load history
         try:
             self.history = pd.read_csv(f'{self.db_name}_history.csv', index_col=0, parse_dates=True)
         except FileNotFoundError:
             self.history = pd.DataFrame(columns=['name', 'time', 'importance', 'dtime', 'group'])
 
-        self.refresh_groups()
-        self.recalculate_priority()
-        self.sort_items()
-        self.save()
-
-    # refreshing views
+    # refreshing
     def refresh_groups(self):
-        self.groups = set([x['group'] for x in self.items])
-
-    def refresh_edit(self, idx):
-        item = self.items[idx]
-        self.edit_screen.item_name.text = str(item['name'])
-        self.edit_screen.item_time.text = str(item['time'])
-        self.edit_screen.item_description.text = item['description']
-        self.edit_screen.item_importance.value = item['importance']
-        self.edit_screen.curr_item = item
-        self.edit_screen.item_group.text = item['group']
-
-    def refresh_info(self, idx):
-        if self.show_hidden:
-            item = self.hidden_items[idx]
-        else:
-            item = self.items[idx]
-        self.info_screen.item_name.text = self.formats.name_format(item['name'])
-        self.info_screen.item_time.text = self.formats.time_format(item['time'])
-        self.info_screen.item_description.text = self.formats.description_format(item['description'])
-        self.info_screen.curr_item = item
-        self.info_screen.toggle_view()
-
-    def refresh_view(self):
-        items = list()
-        if self.current_group is None:
-            if self.show_hidden:
-                self.view_screen.items_view.data = self.hidden_items
-            else:
-                self.view_screen.items_view.data = self.items
-        else:
-            if self.show_hidden:
-                for x in self.hidden_items:
-                    if x['group'] == self.current_group:
-                        items.append(x)
-                self.view_screen.items_view.data = items
-            else:
-                for x in self.items:
-                    if x['group'] == self.current_group:
-                        items.append(x)
-                self.view_screen.items_view.data = items
-        self.view_screen.items_view.refresh_from_data()
+        self.groups = set([x['group'] for x in self.skills])
 
     def refresh_stats(self):
         today = time.localtime()
@@ -123,75 +75,72 @@ class Database:
         except KeyError:
             week_full_summary = 0.0
             week_group_summary = 0.0
-        self.view_screen.stats.text = 'Today: {} hours  This week: {} hours'.format(today_group_summary, week_group_summary)
-        if self.group_screen is not None:
-            self.group_screen.stats.text = 'Today: {} hours  This week: {} hours'.format(today_full_summary, week_full_summary)
+
+        self.stats = dict(today_full_summary=today_full_summary,
+                          today_group_summary=today_group_summary,
+                          week_full_summary=week_full_summary,
+                          week_group_summary=week_group_summary)
 
     # data manipulations
     def add_item(self, item):
         item = dict(**item)
-        item['item_id'] = len(self.items)
-        self.items.append(item)
+        item['item_id'] = len(self.skills)
+        self.skills.append(item)
 
         self.recalculate_max()
         self.recalculate_priority()
         self.sort_items()
         self.refresh_groups()
 
-        self.refresh_view()
         self.save()
         
     def edit_item(self, item, idx):
-        self.items[idx] = item
+        self.skills[idx] = item
 
         self.recalculate_max()
         self.recalculate_priority()
         self.sort_items()
         self.refresh_groups()
 
-        self.refresh_view()
         self.save()
     
     def add_time(self, idx, value):
-        self.items[idx]['time'] += value
+        self.skills[idx]['time'] += value
         self.add_history_entry(idx, value)
-        self.refresh_info(idx)
-        self.refresh_stats()
 
+        self.refresh_stats()
         self.recalculate_max()
         self.recalculate_priority()
         self.sort_items()
 
-        self.refresh_view()
         self.save()
 
     def remove_item(self, idx):
-        self.items.pop(idx)
+        self.skills.pop(idx)
 
         self.recalculate_priority()
         self.sort_items()
         self.recalculate_max()
         self.refresh_groups()
 
-        self.refresh_view()
         self.save()
 
     def recalculate_max(self):
-        if len(self.items) != 0:
-            max_time = max([x['time'] for x in self.items])
-            for x in self.items:
+        if len(self.skills) != 0:
+            max_time = max([x['time'] for x in self.skills])
+            for x in self.skills:
                 x['max_time'] = max_time
 
-        if len(self.hidden_items) != 0:
-            max_time = max([x['time'] for x in self.hidden_items])
-            for x in self.hidden_items:
+        if len(self.hidden_skills) != 0:
+            max_time = max([x['time'] for x in self.hidden_skills])
+            for x in self.hidden_skills:
                 x['max_time'] = max_time
 
     def reindex(self):
-        for i, x in enumerate(self.items):
+        for i, x in enumerate(self.skills):
             x['item_id'] = i
 
-        for i, x in enumerate(self.hidden_items):
+        for i, x in enumerate(self.hidden_skills):
             x['item_id'] = i
 
     def save(self):
@@ -199,40 +148,34 @@ class Database:
 
         """
         with open(f'{self.db_name}.yaml', 'w') as file:
-            yaml.dump(dict(expected_time=self.expected_time,
-                           items=self.items,
-                           hidden=self.hidden_items), file, Dumper=yaml.Dumper,
-                           allow_unicode=True)
+            yaml.dump(self.data, file, Dumper=yaml.Dumper,
+                      allow_unicode=True)
 
         self.history.to_csv(f'{self.db_name}_history.csv')
 
     def hide_item(self, idx):
-        item = self.items[idx]
+        item = self.skills[idx]
         self.remove_item(idx)
-        self.hidden_items.append(item)
+        self.hidden_skills.append(item)
 
         self.recalculate_priority()
         self.sort_items()
         self.recalculate_max()
 
-        self.refresh_view()
         self.save()
 
     def unhide_item(self, idx):
-        item = self.hidden_items.pop(idx)
+        item = self.hidden_skills.pop(idx)
         self.add_item(item)
 
         self.recalculate_priority()
         self.sort_items()
         self.recalculate_max()
 
-        self.refresh_view()
         self.save()
 
     def toggle_view(self):
         self.show_hidden = not self.show_hidden
-        self.refresh_view()
-        self.info_screen.toggle_view()
 
     def recalculate_priority(self):
         # calculate expected time
@@ -243,10 +186,10 @@ class Database:
             self.expected_time = self.history['dtime'].resample('14D').sum().mean()
 
         total_importance = 0
-        for x in self.items:
+        for x in self.skills:
             total_importance += pow(self.sensitivity, x['importance'])
 
-        for x in self.items:
+        for x in self.skills:
             if self.history.empty:
                 time2w = 0
             else:
@@ -262,11 +205,11 @@ class Database:
             x['time2w'] = float(time2w)
 
     def sort_items(self):
-        self.items = sorted(self.items, key=lambda x: x['priority'], reverse=True)
+        self.skills = sorted(self.skills, key=lambda x: x['priority'], reverse=True)
         self.reindex()
 
     def add_history_entry(self, idx, dtime):
-        entry = self.items[idx]
+        entry = self.skills[idx]
         date = pd.to_datetime(time.asctime())
         self.history.loc[date] = [
             entry['name'],
@@ -277,21 +220,8 @@ class Database:
         ]
 
     def find_item(self, name):
-        for x in self.items:
+        for x in self.skills:
             if x['name'] == name:
                 return x['item_id']
         else:
             return None
-
-
-class SkillsDatabase(Database):
-    def refresh_info(self, idx):
-        pass
-
-    def recalculate_priority(self):
-        pass
-
-
-class TasksDatabase(Database):
-    def refresh_info(self, idx):
-        pass
