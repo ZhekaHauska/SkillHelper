@@ -19,9 +19,11 @@ class GroupButton(Button):
 
     def on_press(self):
         self.screen_manager.current = "skills_screen"
-        self.screen_manager.db_skills.current_group = self.group
-        self.screen_manager.db_skills.refresh_view()
-        self.screen_manager.db_skills.refresh_stats()
+        self.screen_manager.database.current_group = self.group
+        self.screen_manager.database.refresh_stats()
+        items = self.screen_manager.database.get_items("skills", self.group)
+        self.screen_manager.skills_screen.items_view.data = items
+        self.screen_manager.skills_screen.items_view.refresh_from_data()
 
 
 class GroupView(BoxLayout):

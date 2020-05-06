@@ -19,7 +19,6 @@ class Database:
         # when your week starts
         self.start_week = week_days['monday']
         # state
-        self.current_group = None
         self.show_hidden = False
         # settings
         self.sensitivity = 1.2
@@ -30,15 +29,14 @@ class Database:
             self.data_skills = self.data['skills']
             self.skills = self.data_skills['items']
             self.hidden_skills = self.data_skills['hidden']
-            self.expected_time = self.data_skills['expected_time']
 
             self.data_tasks = self.data['tasks']
             self.tasks = self.data_tasks['items']
             self.hidden_tasks = self.data_tasks['hidden']
-            self.expected_time = self.data_tasks['expected_time']
 
             self.stats = self.data['stats']
             self.groups = self.data['groups']
+            self.expected_time = self.data['expected_time']
 
         # try to load history
         try:
@@ -218,10 +216,26 @@ class Database:
             dtime,
             entry['group']
         ]
-
+    # accessing
     def find_item(self, name):
         for x in self.skills:
             if x['name'] == name:
                 return x['item_id']
         else:
             return None
+
+    def get_items(self, type, group):
+        if type == "skills":
+            if self.show_hidden:
+                items = filter(lambda x: x['group'] == group, self.hidden_skills)
+            else:
+                items = filter(lambda x: x['group'] == group, self.skills)
+        elif type == "tasks":
+            if self.show_hidden:
+                items = filter(lambda x: x['group'] == group, self.hidden_tasks)
+            else:
+                items = filter(lambda x: x['group'] == group, self.tasks)
+        else:
+            raise ValueError(f"Unknown type {type}")
+
+        return items
