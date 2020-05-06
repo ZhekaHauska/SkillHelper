@@ -7,7 +7,7 @@ class TaskInfoScreen(Screen):
         super(TaskInfoScreen, self).__init__(**kw)
 
     def toggle_view(self):
-        if self.manager.db_tasks.show_hidden:
+        if self.manager.database.show_hidden:
             self.options.disabled = True
             self.unhide_button.disabled = False
         else:
@@ -17,7 +17,7 @@ class TaskInfoScreen(Screen):
 
 class AddTaskTimeButton(Button):
     def add_time(self):
-        self.screen_manager.db_tasks.add_time(self.task_info_screen.curr_item['item_id'],
+        self.screen_manager.database.add_time(self.task_info_screen.curr_item['item_id'],
                                               float(self.add_time_amount.text))
 
 
