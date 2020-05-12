@@ -4,73 +4,90 @@
     item_name: _item_name
     item_description: _item_description
     item_time: _item_time
-    curr_item: None
+    item_group: _item_group
     unhide_button: _unhide_button
     options: _options
+    items_view: _items_view
     BoxLayout:
         orientation: 'vertical'
         BoxLayout:
             orientation: 'horizontal'
-            size_hint: 1, 0.3
-            Button:
+            size_hint: 1, 0.1
+            TaskBackButton:
+                screen_manager: root.manager
                 size_hint: 0.1, 1
                 text: "Back"
-                on_press: root.manager.current = "tasks_screen"
             Label:
                 id: _item_name
-                text: "Task name"
+                text: "Name"
             Label:
                 id: _item_time
                 text: "Total time"
-        Label:
-            size_hint: 1, 3
-            id: _item_description
-            text: "Description"
-            text_size: self.size
-            halign: 'left'
-            valign: 'center'
-        AnchorLayout:
-            size_hint: 1, 2
-            id: _options
+            Label:
+                id: _item_group
+                text: "group"
+        BoxLayout:
+            orientation: 'horizontal'
             BoxLayout:
                 orientation: 'vertical'
-                Timer:
-                    id: _timer
-                    add_time_amount: _add_time_amount
+                Label:
+                    size_hint: 1, 6
+                    id: _item_description
+                    text: "Description"
+                    text_size: self.size
+                    halign: 'left'
+                    valign: 'center'
                 BoxLayout:
+                    id: _options
                     orientation: 'horizontal'
-                    AddTaskTimeButton:
-                        task_info_screen: root
-                        screen_manager: root.manager
+                    Timer:
+                        id: _timer
                         add_time_amount: _add_time_amount
-                        timer: _timer
-                        text: "Add time"
-                        on_press: self.add_time()
-                    TextInput:
-                        id: _add_time_amount
-                        text: "hours"
-                        on_focus: self.text=""
-                        multiline: False
-                HideTaskButton:
-                    task_info_screen: root
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        AddTimeButton:
+                            skill_info_screen: root
+                            screen_manager: root.manager
+                            add_time_amount: _add_time_amount
+                            timer: _timer
+                            text: "Add time"
+                            on_press: self.add_time()
+                        TextInput:
+                            id: _add_time_amount
+                            text: "hours"
+                            on_focus: self.text=""
+                            multiline: False
+                BoxLayout:
+                    orientation: "horizontal"
+                    HideSkillButton:
+                        skill_info_screen: root
+                        screen_manager: root.manager
+                        text: "Hide"
+                        on_press: self.hide_skill()
+                    UnhideSkillButton:
+                        skill_info_screen: root
+                        screen_manager: root.manager
+                        id: _unhide_button
+                        text: "Unhide"
+                        on_press: self.unhide_skill()
+                    EditSkillButton:
+                        skill_info_screen: root
+                        screen_manager: root.manager
+                        text: "Edit"
+                        on_press: self.edit_item()
+                    RemoveSkillButton:
+                        skill_info_screen: root
+                        screen_manager: root.manager
+                        text: "Remove"
+                        on_press: self.remove_skill()
+            BoxLayout:
+                orientation: 'vertical'
+                Label:
+                    size_hint: 1, 0.1
+                    text: "Задачи"
+                TasksView:
+                    id: _items_view
                     screen_manager: root.manager
-                    text: "Mark as done"
-                    on_press: self.hide_task()
-        BoxLayout:
-            orientation: "horizontal"
-            UnhideTaskButton:
-                task_info_screen: root
-                screen_manager: root.manager
-                id: _unhide_button
-                text: "Mark as not done"
-                on_press: self.unhide_task()
-            EditTaskButton:
-                task_info_screen: root
-                screen_manager: root.manager
-                text: "Edit"
-                on_press: self.edit_item()
-            RemoveTaskButton:
-                task_info_screen: root
-                screen_manager: root.manager
-                text: "Remove task"
-                on_press: self.remove_task()
+                TaskControlPanel:
+                    size_hint: 1, 0.1
+                    screen_manager: root.manager

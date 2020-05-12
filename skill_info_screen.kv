@@ -6,6 +6,7 @@
     item_description: _item_description
     item_time: _item_time
     unhide_button: _unhide_button
+    item_group: _item_group
     options: _options
     items_view: _items_view
     BoxLayout:
@@ -16,12 +17,17 @@
             Button:
                 size_hint: 0.1, 1
                 text: "Back"
-                on_press: root.manager.current = "skills_screen"
+                on_press:
+                    root.manager.current = "skills_screen"
+                    root.manager.skills_screen.refresh(root.item_group.text)
             Label:
                 id: _item_name
                 text: "Name"
             Label:
                 id: _item_time
+                text: "Total time"
+            Label:
+                id: _item_group
                 text: "Total time"
         BoxLayout:
             orientation: 'horizontal'

@@ -27,7 +27,7 @@
                 text: "Show all"
                 on_press:
                     root.screen_manager.current = 'skills_screen'
-                    root.screen_manager.db_skills.refresh_view()
+                    root.screen_manager.skills_screen.refresh()
             Button:
                 text: "Connections"
                 on_press: root.screen_manager.current = 'node_editor_screen'

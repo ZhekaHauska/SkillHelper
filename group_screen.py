@@ -6,7 +6,9 @@ from kivy.properties import ObjectProperty
 
 
 class GroupScreen(Screen):
-    pass
+    def refresh(self):
+        stats = self.manager.database.stats['total']
+        self.stats.text = f"Today: {round(stats['today'], 2)} This week: {round(stats['week'], 2)}"
 
 
 class GroupButton(Button):
@@ -19,11 +21,7 @@ class GroupButton(Button):
 
     def on_press(self):
         self.screen_manager.current = "skills_screen"
-        self.screen_manager.database.current_group = self.group
-        self.screen_manager.database.refresh_stats()
-        items = self.screen_manager.database.get_items("skills", self.group)
-        self.screen_manager.skills_screen.items_view.data = items
-        self.screen_manager.skills_screen.items_view.refresh_from_data()
+        self.screen_manager.skills_screen.refresh(self.group)
 
 
 class GroupView(BoxLayout):
@@ -41,3 +39,5 @@ class GroupView(BoxLayout):
             button = GroupButton(group=group, screen_manager=self.screen_manager)
             self.buttons.append(button)
             self.add_widget(button)
+
+        self.group_screen.refresh()

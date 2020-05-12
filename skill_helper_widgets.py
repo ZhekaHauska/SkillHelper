@@ -120,13 +120,8 @@ class SkillItem(Item):
             sm = self.parent.parent.screen_manager
             sm.current = 'skill_info_screen'
 
-            sm.skill_info_screen.item_name.text = self.name
-            sm.skill_info_screen.item_description.text = self.description
-            sm.skill_info_screen.item_time.text = str(round(self.time, 2))
+            sm.skill_info_screen.refresh(self)
 
-            items = sm.database.get_items("tasks", self.group + "/" + self.name)
-            sm.skill_info_screen.items_view.data = items
-            sm.skill_info_screen.items_view.refresh_from_data()
             return True
         return super(SkillItem, self).on_touch_up(touch)
 
@@ -139,13 +134,8 @@ class TaskItem(Item):
             sm = self.parent.parent.screen_manager
             sm.current = 'task_info_screen'
 
-            sm.task_info_screen.item_name.text = self.name
-            sm.task_info_screen.item_description.text = self.description
-            sm.task_info_screen.item_time.text = str(round(self.time, 2))
+            sm.task_info_screen.refresh(self)
 
-            items = sm.database.get_items("tasks", self.group + "/" + self.name)
-            sm.task_info_screen.items_view.data = items
-            sm.task_info_screen.items_view.refresh_from_data()
             return True
         return super(TaskItem, self).on_touch_up(touch)
 

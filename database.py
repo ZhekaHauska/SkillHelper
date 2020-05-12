@@ -48,36 +48,36 @@ class Database:
     def refresh_groups(self):
         self.groups = set([x['group'] for x in self.skills])
 
-    def refresh_stats(self):
+    def refresh_stats(self, group=None):
         today = time.localtime()
-        cgroup_history = self.history.query(f'group == "{self.current_group}"')
+
+        if group is not None:
+            history = self.history[self.history.group.str.contains(group)]
+        else:
+            history = self.history
+
         if today.tm_wday >= self.start_week:
             wdays = today.tm_wday - self.start_week
         else:
             wdays = 7 - (self.start_week - today.tm_wday)
         # today
         try:
-            today_full_summary = self.history[f'{today.tm_year}-{today.tm_mon}-{today.tm_mday}']['dtime'].sum()
-            today_group_summary = cgroup_history[f'{today.tm_year}-{today.tm_mon}-{today.tm_mday}']['dtime'].sum()
+            today_summary = history[f'{today.tm_year}-{today.tm_mon}-{today.tm_mday}']['dtime'].sum()
         except KeyError:
-            today_full_summary = 0.0
-            today_group_summary = 0.0
+            today_summary = 0.0
         # week
         start = (date.today() - timedelta(days=wdays)).isoformat()
         end = date.today().isoformat()
         try:
-            week_full_summary = self.history[start:
-                                             end]['dtime'].sum()
-            week_group_summary = cgroup_history[start:
-                                                end]['dtime'].sum()
+            week_summary = history[start: end]['dtime'].sum()
         except KeyError:
-            week_full_summary = 0.0
-            week_group_summary = 0.0
+            week_summary = 0.0
 
-        self.stats = dict(today_full_summary=today_full_summary,
-                          today_group_summary=today_group_summary,
-                          week_full_summary=week_full_summary,
-                          week_group_summary=week_group_summary)
+        if group is not None:
+            self.stats[group] = {'today': today_summary, 'week': week_summary}
+        else:
+            self.stats['total']['today'] = today_summary
+            self.stats['total']['week'] = week_summary
 
     # data manipulations
     def add_item(self, item):
@@ -102,11 +102,16 @@ class Database:
 
         self.save()
     
-    def add_time(self, idx, value):
-        self.skills[idx]['time'] += value
-        self.add_history_entry(idx, value)
+    def add_time(self, group, name, value):
+        tree = group.split('/')
+        tree.append(name)
 
-        self.refresh_stats()
+        for i in range(len(tree)-1, 0, -1):
+            g = "/".join(tree[:i])
+            self.find_item(g, tree[i])['time'] += value
+
+        self.add_history_entry(self.find_item(group, name), value)
+
         self.recalculate_max()
         self.recalculate_priority()
         self.sort_items()
@@ -206,8 +211,7 @@ class Database:
         self.skills = sorted(self.skills, key=lambda x: x['priority'], reverse=True)
         self.reindex()
 
-    def add_history_entry(self, idx, dtime):
-        entry = self.skills[idx]
+    def add_history_entry(self, entry, dtime):
         date = pd.to_datetime(time.asctime())
         self.history.loc[date] = [
             entry['name'],
@@ -216,11 +220,17 @@ class Database:
             dtime,
             entry['group']
         ]
+
     # accessing
-    def find_item(self, name):
-        for x in self.skills:
-            if x['name'] == name:
-                return x['item_id']
+    def find_item(self, group, name):
+        if len(group.split('/')) == 1:
+            item_type = "skills"
+        else:
+            item_type = "tasks"
+
+        for x in self.data[item_type]['items']:
+            if (x['name'] == name) and (x['group'] == group):
+                return x
         else:
             return None
 
