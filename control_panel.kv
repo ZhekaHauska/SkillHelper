@@ -7,10 +7,9 @@
             Button:
                 text: "New skill"
                 on_press: root.screen_manager.current = 'add_skill_screen'
-            ToggleButton:
+            HiddenTogButton:
                 text: "Hidden"
-                on_press:
-                    root.screen_manager.db_skills.toggle_view()
+                root: root
             Button:
                 text: "Connections"
                 on_press: root.screen_manager.current = 'node_editor_screen'

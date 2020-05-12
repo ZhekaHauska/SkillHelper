@@ -18,8 +18,6 @@ class Database:
         self.db_name = db_name
         # when your week starts
         self.start_week = week_days['monday']
-        # state
-        self.show_hidden = False
         # settings
         self.sensitivity = 1.2
         # try to load database from disk
@@ -234,14 +232,14 @@ class Database:
         else:
             return None
 
-    def get_items(self, type, group):
+    def get_items(self, type, group, hidden=False):
         if type == "skills":
-            if self.show_hidden:
+            if hidden:
                 items = filter(lambda x: x['group'] == group, self.hidden_skills)
             else:
                 items = filter(lambda x: x['group'] == group, self.skills)
         elif type == "tasks":
-            if self.show_hidden:
+            if hidden:
                 items = filter(lambda x: x['group'] == group, self.hidden_tasks)
             else:
                 items = filter(lambda x: x['group'] == group, self.tasks)
