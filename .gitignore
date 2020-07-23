@@ -3,3 +3,11 @@
 __pycache__/
 skills.yaml
 tasks.yaml
+/hauska.yaml
+/hauska_history.csv
+/layout.pkl
+/skills_history.csv
+/test.csv
+/test.h5
+/Untitled.ipynb
+/.ipynb_checkpoints/Untitled-checkpoint.ipynb
