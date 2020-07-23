@@ -5,9 +5,14 @@ class SkillsScreen(Screen):
     def __init__(self, **kwargs):
         super(SkillsScreen, self).__init__(**kwargs)
         self.group = None
+        self.hidden = False
+
+    def on_enter(self):
+        self.refresh(self.group, self.hidden)
 
     def refresh(self, group=None, hidden=False):
         self.group = group
+        self.hidden = hidden
         if hidden:
             if group is None:
                 items = self.manager.database.hidden_skills

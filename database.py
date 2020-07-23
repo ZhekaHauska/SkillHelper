@@ -14,6 +14,7 @@ week_days = {'monday': 0,
 
 class Database:
     def __init__(self, db_name):
+        self.show_hidden = False
         # profile
         self.db_name = db_name
         # when your week starts
@@ -23,14 +24,6 @@ class Database:
         # try to load database from disk
         with open(f'{self.db_name}.yaml') as file:
             self.data = yaml.load(file, Loader=yaml.Loader)
-
-            self.data_skills = self.data['skills']
-            self.skills = self.data_skills['items']
-            self.hidden_skills = self.data_skills['hidden']
-
-            self.data_tasks = self.data['tasks']
-            self.tasks = self.data_tasks['items']
-            self.hidden_tasks = self.data_tasks['hidden']
 
             self.stats = self.data['stats']
             self.groups = self.data['groups']
@@ -44,7 +37,7 @@ class Database:
 
     # refreshing
     def refresh_groups(self):
-        self.groups = set([x['group'] for x in self.skills])
+        self.groups = set([x['group'] for x in self.data['skills']['items']])
 
     def refresh_stats(self, group=None):
         today = time.localtime()
@@ -80,8 +73,10 @@ class Database:
     # data manipulations
     def add_item(self, item):
         item = dict(**item)
-        item['item_id'] = len(self.skills)
-        self.skills.append(item)
+        if len(item['group'].split('/')) == 1:
+            self.data['tasks']['items'].append(item)
+        else:
+            self.data['tasks']['items'].append(item)
 
         self.recalculate_max()
         self.recalculate_priority()
@@ -90,9 +85,8 @@ class Database:
 
         self.save()
         
-    def edit_item(self, item, idx):
-        self.skills[idx] = item
-
+    def edit_item(self, group, name, item):
+        # TODO edit item
         self.recalculate_max()
         self.recalculate_priority()
         self.sort_items()
@@ -116,8 +110,30 @@ class Database:
 
         self.save()
 
-    def remove_item(self, idx):
-        self.skills.pop(idx)
+    def remove_item(self, group, name, hidden=False):
+        g = "/".join([group, name])
+
+        if len(group.split('/')) == 1:
+            item_type = "skills"
+        else:
+            item_type = "tasks"
+
+        if hidden:
+            kindof = 'hidden'
+        else:
+            kindof = 'items'
+
+        item = self.find_item(group, name, hidden=hidden)
+        dependent_items = self.find_item(g, hidden=False)
+        dependent_items_h = self.find_item(g, hidden=True)
+
+        self.data[item_type][kindof].remove(item)
+
+        for x in dependent_items:
+            self.remove_item(x['group'], x['name'], hidden=False)
+
+        for x in dependent_items_h:
+            self.remove_item(x['group'], x['name'], hidden=True)
 
         self.recalculate_priority()
         self.sort_items()
@@ -127,22 +143,16 @@ class Database:
         self.save()
 
     def recalculate_max(self):
-        if len(self.skills) != 0:
-            max_time = max([x['time'] for x in self.skills])
-            for x in self.skills:
+        # TODO
+        if len(self.data['skills']['items']) != 0:
+            max_time = max([x['time'] for x in self.data['skills']['items']])
+            for x in self.data['skills']['items']:
                 x['max_time'] = max_time
 
-        if len(self.hidden_skills) != 0:
-            max_time = max([x['time'] for x in self.hidden_skills])
-            for x in self.hidden_skills:
+        if len(self.data['skills']['hidden']) != 0:
+            max_time = max([x['time'] for x in self.data['skills']['hidden']])
+            for x in self.data['skills']['hidden']:
                 x['max_time'] = max_time
-
-    def reindex(self):
-        for i, x in enumerate(self.skills):
-            x['item_id'] = i
-
-        for i, x in enumerate(self.hidden_skills):
-            x['item_id'] = i
 
     def save(self):
         """Save database to disk.
@@ -154,10 +164,22 @@ class Database:
 
         self.history.to_csv(f'{self.db_name}_history.csv')
 
-    def hide_item(self, idx):
-        item = self.skills[idx]
-        self.remove_item(idx)
-        self.hidden_skills.append(item)
+    def hide_item(self, group, name):
+        g = "/".join([group, name])
+
+        if len(group.split('/')) == 1:
+            item_type = "skills"
+        else:
+            item_type = "tasks"
+
+        item = self.find_item(group, name, hidden=False)
+        dependent_items = self.find_item(g, hidden=False)
+
+        self.data[item_type]['hidden'].append(item)
+        self.data[item_type]['items'].remove(item)
+
+        for x in dependent_items:
+            self.hide_item(x['group'], x['name'])
 
         self.recalculate_priority()
         self.sort_items()
@@ -165,49 +187,61 @@ class Database:
 
         self.save()
 
-    def unhide_item(self, idx):
-        item = self.hidden_skills.pop(idx)
-        self.add_item(item)
+    def unhide_item(self, group, name):
+        g = "/".join([group, name])
+
+        if len(group.split('/')) == 1:
+            item_type = "skills"
+        else:
+            item_type = "tasks"
+
+        item = self.find_item(group, name, hidden=True)
+        dependent_items = self.find_item(g, hidden=True)
+
+        self.data[item_type]['items'].append(item)
+        self.data[item_type]['hidden'].remove(item)
+
+        for x in dependent_items:
+            self.unhide_item(x['group'], x['name'])
 
         self.recalculate_priority()
         self.sort_items()
         self.recalculate_max()
 
         self.save()
-
-    def toggle_view(self):
-        self.show_hidden = not self.show_hidden
 
     def recalculate_priority(self):
+        pass
         # calculate expected time
         # average total for two weeks time
-        if self.history.empty:
-            self.expected_time = 3 * 14
-        else:
-            self.expected_time = self.history['dtime'].resample('14D').sum().mean()
-
-        total_importance = 0
-        for x in self.skills:
-            total_importance += pow(self.sensitivity, x['importance'])
-
-        for x in self.skills:
-            if self.history.empty:
-                time2w = 0
-            else:
-                time2w = self.history.query(f'name == "{x["name"]}"')['dtime'].resample('14D').sum()
-                if not time2w.empty:
-                    time2w = time2w.iloc[-1]
-                else:
-                    time2w = 0
-            etime = pow(self.sensitivity, x['importance']) * self.expected_time / total_importance
-            priority = 1 - time2w / etime
-            x['priority'] = float(priority)
-            x['etime'] = float(etime)
-            x['time2w'] = float(time2w)
+        # if self.history.empty:
+        #     self.expected_time = 3 * 14
+        # else:
+        #     self.expected_time = self.history['dtime'].resample('14D').sum().mean()
+        #
+        # total_importance = 0
+        # for x in self.skills:
+        #     total_importance += pow(self.sensitivity, x['importance'])
+        #
+        # for x in self.skills:
+        #     if self.history.empty:
+        #         time2w = 0
+        #     else:
+        #         time2w = self.history.query(f'name == "{x["name"]}"')['dtime'].resample('14D').sum()
+        #         if not time2w.empty:
+        #             time2w = time2w.iloc[-1]
+        #         else:
+        #             time2w = 0
+        #     etime = pow(self.sensitivity, x['importance']) * self.expected_time / total_importance
+        #     priority = 1 - time2w / etime
+        #     x['priority'] = float(priority)
+        #     x['etime'] = float(etime)
+        #     x['time2w'] = float(time2w)
 
     def sort_items(self):
-        self.skills = sorted(self.skills, key=lambda x: x['priority'], reverse=True)
-        self.reindex()
+        pass
+        # TODO
+        # self.data['skills'] = sorted(self.skills, key=lambda x: x['priority'], reverse=True)
 
     def add_history_entry(self, entry, dtime):
         date = pd.to_datetime(time.asctime())
@@ -220,30 +254,31 @@ class Database:
         ]
 
     # accessing
-    def find_item(self, group, name):
+    def find_item(self, group, name=None, hidden=False):
+        if hidden:
+            kindof = 'hidden'
+        else:
+            kindof = 'items'
+
         if len(group.split('/')) == 1:
             item_type = "skills"
         else:
             item_type = "tasks"
-
-        for x in self.data[item_type]['items']:
-            if (x['name'] == name) and (x['group'] == group):
-                return x
+        if name is not None:
+            for x in self.data[item_type][kindof]:
+                if (x['name'] == name) and (x['group'] == group):
+                    return x
+            else:
+                return None
         else:
-            return None
+            res = list()
+            for x in self.data[item_type][kindof]:
+                if x['group'] == group:
+                    res.append(x)
+            return res
 
     def get_items(self, type, group, hidden=False):
-        if type == "skills":
-            if hidden:
-                items = filter(lambda x: x['group'] == group, self.hidden_skills)
-            else:
-                items = filter(lambda x: x['group'] == group, self.skills)
-        elif type == "tasks":
-            if hidden:
-                items = filter(lambda x: x['group'] == group, self.hidden_tasks)
-            else:
-                items = filter(lambda x: x['group'] == group, self.tasks)
-        else:
-            raise ValueError(f"Unknown type {type}")
+        kindof = 'hidden' if hidden else 'items'
+        items = filter(lambda x: x['group'] == group, self.data[type][kindof])
 
         return items

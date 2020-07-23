@@ -120,7 +120,7 @@ class SkillItem(Item):
             sm = self.parent.parent.screen_manager
             sm.current = 'skill_info_screen'
 
-            sm.skill_info_screen.refresh(self)
+            sm.skill_info_screen.refresh(self, hidden=sm.skills_screen.hidden)
 
             return True
         return super(SkillItem, self).on_touch_up(touch)

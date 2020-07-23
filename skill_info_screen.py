@@ -1,20 +1,22 @@
 from kivy.uix.screenmanager import Screen
 from kivy.uix.button import Button
+from kivy.properties import BooleanProperty
 
 
 class SkillInfoScreen(Screen):
     def __init__(self, **kw):
         super(SkillInfoScreen, self).__init__(**kw)
 
-    def toggle_view(self):
-        if self.manager.database.show_hidden:
+    def refresh(self, item, hidden=False):
+        if hidden:
             self.options.disabled = True
             self.unhide_button.disabled = False
+            self.hide_button.disabled = True
         else:
             self.options.disabled = False
             self.unhide_button.disabled = True
+            self.hide_button.disabled = False
 
-    def refresh(self, item):
         self.item_name.text = item.name
         self.item_description.text = item.description
         self.item_time.text = str(round(item.time, 2))
@@ -36,19 +38,22 @@ class AddTimeButton(Button):
 
 class RemoveSkillButton(Button):
     def remove_skill(self):
-        self.screen_manager.database.remove_item(self.skill_info_screen.curr_item["item_id"])
+        self.screen_manager.database.remove_item(self.skill_info_screen.item_group.text,
+                                                 self.skill_info_screen.item_name.text)
         self.screen_manager.current = "skills_screen"
 
 
 class HideSkillButton(Button):
     def hide_skill(self):
-        self.screen_manager.database.hide_item(self.skill_info_screen.curr_item["item_id"])
+        self.screen_manager.database.hide_item(self.skill_info_screen.item_group.text,
+                                               self.skill_info_screen.item_name.text)
         self.screen_manager.current = "skills_screen"
 
 
 class UnhideSkillButton(Button):
     def unhide_skill(self):
-        self.screen_manager.database.unhide_item(self.skill_info_screen.curr_item["item_id"])
+        self.screen_manager.database.unhide_item(self.skill_info_screen.item_group.text,
+                                                 self.skill_info_screen.item_name.text)
         self.screen_manager.current = "skills_screen"
 
 

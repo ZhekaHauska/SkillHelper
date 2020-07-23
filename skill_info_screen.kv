@@ -6,6 +6,7 @@
     item_description: _item_description
     item_time: _item_time
     unhide_button: _unhide_button
+    hide_button: _hide_button
     item_group: _item_group
     options: _options
     items_view: _items_view
@@ -63,6 +64,7 @@
                 BoxLayout:
                     orientation: "horizontal"
                     HideSkillButton:
+                        id: _hide_button
                         skill_info_screen: root
                         screen_manager: root.manager
                         text: "Hide"

@@ -67,8 +67,8 @@ class NodeEditorScreen(Screen):
             pickle.dump({'nodes': nodes, 'connections': connections}, file)
 
     def calculate_importance(self):
-        self.size_skills = len(self.manager.db_skills.items)
-        self.size_tasks = len(self.manager.db_tasks.items)
+        self.size_skills = len(self.manager.database.skills)
+        self.size_tasks = len(self.manager.database.tasks)
         D = np.eye(self.size_skills+self.size_tasks)
         d = np.eye(self.size_skills+self.size_tasks)
 
@@ -91,20 +91,19 @@ class NodeEditorScreen(Screen):
         d /= d.max()
 
         for row in range(0, self.size_skills):
-            self.manager.db_skills.items[row]['importance'] = float(0.5*(d[row, row] + self.manager.db_skills.items[row]['importance']))
+            self.manager.database.skills[row]['importance'] = float(0.5*(d[row, row] + self.manager.database.skills[row]['importance']))
 
         for row in range(self.size_skills, D.shape[0]):
-            self.manager.db_tasks.items[row - self.size_skills]['importance'] = float(0.5*(d[row, row] +
-                                                                                     self.manager.db_tasks.items[row - self.size_skills]['importance']))
+            self.manager.database.tasks[row - self.size_skills]['importance'] = float(0.5*(d[row, row] +
+                                                                                     self.manager.database.tasks[row - self.size_skills]['importance']))
 
-        self.manager.db_skills.recalculate_priority()
-        self.manager.db_tasks.recalculate_priority()
+        self.manager.database.recalculate_priority()
 
     def find_item(self, name, type):
         if type == "skill":
-            idx = self.manager.db_skills.find_item(name)
+            idx = self.manager.database.find_item(name)
         else:
-            idx = self.manager.db_tasks.find_item(name) + self.size_skills
+            idx = self.manager.database.find_item(name) + self.size_skills
         return idx
 
     def importance(self, D, row):
