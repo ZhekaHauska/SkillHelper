@@ -11,8 +11,8 @@ class NodeEditorScreen(Screen):
         self.node_editor = None
         self.layout = None
 
-    def on_enter(self):
-        super(NodeEditorScreen, self).on_enter()
+    def on_enter(self, *args):
+        super(NodeEditorScreen, self).on_enter(*args)
         if self.node_editor is None:
             self.node_editor = NodeEditor(auto_bring_to_front=False,
                                           screen_manager=self.manager)

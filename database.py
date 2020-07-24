@@ -74,7 +74,7 @@ class Database:
     def add_item(self, item):
         item = dict(**item)
         if len(item['group'].split('/')) == 1:
-            self.data['tasks']['items'].append(item)
+            self.data['skills']['items'].append(item)
         else:
             self.data['tasks']['items'].append(item)
 

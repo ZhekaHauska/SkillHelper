@@ -6,6 +6,7 @@
     item_time: _item_time
     item_group: _item_group
     unhide_button: _unhide_button
+    hide_button: _hide_button
     options: _options
     items_view: _items_view
     BoxLayout:
@@ -60,15 +61,16 @@
                 BoxLayout:
                     orientation: "horizontal"
                     HideSkillButton:
+                        id: _hide_button
                         skill_info_screen: root
                         screen_manager: root.manager
-                        text: "Hide"
+                        text: "Done"
                         on_press: self.hide_skill()
                     UnhideSkillButton:
                         skill_info_screen: root
                         screen_manager: root.manager
                         id: _unhide_button
-                        text: "Unhide"
+                        text: "Duty"
                         on_press: self.unhide_skill()
                     EditSkillButton:
                         skill_info_screen: root

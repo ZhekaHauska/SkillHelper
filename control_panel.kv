@@ -39,6 +39,6 @@
             Button:
                 text: "New task"
                 on_press: root.screen_manager.current = 'add_task_screen'
-            ToggleButton:
-                text: "Done"
-                on_press: root.screen_manager.db_tasks.toggle_view()
+            TaskTogButton:
+                text: "Completed"
+                root: root

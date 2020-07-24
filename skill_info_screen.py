@@ -6,8 +6,10 @@ from kivy.properties import BooleanProperty
 class SkillInfoScreen(Screen):
     def __init__(self, **kw):
         super(SkillInfoScreen, self).__init__(**kw)
+        self.item = None
 
     def refresh(self, item, hidden=False):
+        self.item = item
         if hidden:
             self.options.disabled = True
             self.unhide_button.disabled = False
@@ -22,9 +24,19 @@ class SkillInfoScreen(Screen):
         self.item_time.text = str(round(item.time, 2))
         self.item_group.text = item.group
 
-        items = self.manager.database.get_items("tasks", item.group + "/" + item.name)
+        self.refresh_tasks(item.group + "/" + item.name)
+
+        self.manager.add_task_screen.parent_group = item.group
+        self.manager.add_task_screen.parent_name = item.name
+
+    def refresh_tasks(self, group, hidden=False):
+        items = self.manager.database.get_items("tasks", group, hidden=hidden)
         self.items_view.data = items
         self.items_view.refresh_from_data()
+
+    def on_enter(self, *args):
+        super(SkillInfoScreen, self).on_enter(*args)
+        self.refresh(self.item, hidden=self.manager.skills_screen.hidden)
 
 
 class AddTimeButton(Button):
@@ -39,7 +51,8 @@ class AddTimeButton(Button):
 class RemoveSkillButton(Button):
     def remove_skill(self):
         self.screen_manager.database.remove_item(self.skill_info_screen.item_group.text,
-                                                 self.skill_info_screen.item_name.text)
+                                                 self.skill_info_screen.item_name.text,
+                                                 hidden=self.screen_manager.skills_screen.hidden)
         self.screen_manager.current = "skills_screen"
 
 
