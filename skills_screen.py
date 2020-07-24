@@ -7,7 +7,9 @@ class SkillsScreen(Screen):
         self.group = None
         self.hidden = False
 
-    def on_enter(self):
+    def on_pre_enter(self, *args):
+        super(SkillsScreen, self).on_pre_enter(*args)
+        self.control_panel.tog_button.state = 'normal'
         self.refresh(self.group, self.hidden)
 
     def refresh(self, group=None, hidden=False):
@@ -15,12 +17,12 @@ class SkillsScreen(Screen):
         self.hidden = hidden
         if hidden:
             if group is None:
-                items = self.manager.database.hidden_skills
+                items = self.manager.database.data['skills']['hidden']
             else:
                 items = self.manager.database.get_items("skills", group, hidden=True)
         else:
             if group is None:
-                items = self.manager.database.skills
+                items = self.manager.database.data['skills']['items']
                 stats = self.manager.database.stats['total']
             else:
                 items = self.manager.database.get_items("skills", group)

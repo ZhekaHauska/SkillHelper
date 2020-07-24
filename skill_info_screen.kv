@@ -10,13 +10,14 @@
     item_group: _item_group
     options: _options
     items_view: _items_view
+    control_panel: _control_panel
     BoxLayout:
         orientation: 'vertical'
         BoxLayout:
             orientation: 'horizontal'
             size_hint: 1, 0.1
             Button:
-                size_hint: 0.1, 1
+                size_hint: 0.2, 1
                 text: "Back"
                 on_press:
                     root.manager.current = "skills_screen"
@@ -34,10 +35,10 @@
             orientation: 'horizontal'
             BoxLayout:
                 orientation: 'vertical'
-                Label:
+                TextInput:
                     size_hint: 1, 6
                     id: _item_description
-                    text: "Description"
+                    text: "Notes"
                     text_size: self.size
                     halign: 'left'
                     valign: 'center'
@@ -49,7 +50,7 @@
                         add_time_amount: _add_time_amount
                     BoxLayout:
                         orientation: 'horizontal'
-                        AddTimeButton:
+                        AddSkillTimeButton:
                             skill_info_screen: root
                             screen_manager: root.manager
                             add_time_amount: _add_time_amount
@@ -75,11 +76,6 @@
                         id: _unhide_button
                         text: "Unhide"
                         on_press: self.unhide_skill()
-                    EditSkillButton:
-                        skill_info_screen: root
-                        screen_manager: root.manager
-                        text: "Edit"
-                        on_press: self.edit_item()
                     RemoveSkillButton:
                         skill_info_screen: root
                         screen_manager: root.manager
@@ -94,5 +90,6 @@
                     id: _items_view
                     screen_manager: root.manager
                 TaskControlPanel:
+                    id: _control_panel
                     size_hint: 1, 0.1
                     screen_manager: root.manager

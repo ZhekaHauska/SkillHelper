@@ -9,6 +9,7 @@
     hide_button: _hide_button
     options: _options
     items_view: _items_view
+    control_panel: _control_panel
     BoxLayout:
         orientation: 'vertical'
         BoxLayout:
@@ -16,7 +17,7 @@
             size_hint: 1, 0.1
             TaskBackButton:
                 screen_manager: root.manager
-                size_hint: 0.1, 1
+                size_hint: 0.2, 1
                 text: "Back"
             Label:
                 id: _item_name
@@ -31,7 +32,7 @@
             orientation: 'horizontal'
             BoxLayout:
                 orientation: 'vertical'
-                Label:
+                TextInput:
                     size_hint: 1, 6
                     id: _item_description
                     text: "Description"
@@ -46,8 +47,8 @@
                         add_time_amount: _add_time_amount
                     BoxLayout:
                         orientation: 'horizontal'
-                        AddTimeButton:
-                            skill_info_screen: root
+                        AddTaskTimeButton:
+                            task_info_screen: root
                             screen_manager: root.manager
                             add_time_amount: _add_time_amount
                             timer: _timer
@@ -60,28 +61,23 @@
                             multiline: False
                 BoxLayout:
                     orientation: "horizontal"
-                    HideSkillButton:
+                    HideTaskButton:
                         id: _hide_button
-                        skill_info_screen: root
+                        task_info_screen: root
                         screen_manager: root.manager
                         text: "Done"
-                        on_press: self.hide_skill()
-                    UnhideSkillButton:
-                        skill_info_screen: root
+                        on_press: self.hide_task()
+                    UnhideTaskButton:
+                        task_info_screen: root
                         screen_manager: root.manager
                         id: _unhide_button
                         text: "Duty"
-                        on_press: self.unhide_skill()
-                    EditSkillButton:
-                        skill_info_screen: root
-                        screen_manager: root.manager
-                        text: "Edit"
-                        on_press: self.edit_item()
-                    RemoveSkillButton:
-                        skill_info_screen: root
+                        on_press: self.unhide_task()
+                    RemoveTaskButton:
+                        task_info_screen: root
                         screen_manager: root.manager
                         text: "Remove"
-                        on_press: self.remove_skill()
+                        on_press: self.remove_task()
             BoxLayout:
                 orientation: 'vertical'
                 Label:
@@ -91,5 +87,6 @@
                     id: _items_view
                     screen_manager: root.manager
                 TaskControlPanel:
+                    id: _control_panel
                     size_hint: 1, 0.1
                     screen_manager: root.manager

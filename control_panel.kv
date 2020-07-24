@@ -1,5 +1,6 @@
 #:import control_panel control_panel
 <SkillControlPanel>:
+    tog_button: _tog_button
     AnchorLayout:
         anchor_x: 'left'
         BoxLayout:
@@ -8,6 +9,7 @@
                 text: "New skill"
                 on_press: root.screen_manager.current = 'add_skill_screen'
             HiddenTogButton:
+                id: _tog_button
                 text: "Hidden"
                 root: root
             Button:
@@ -32,6 +34,7 @@
                 on_press: root.screen_manager.current = 'node_editor_screen'
 
 <TaskControlPanel>:
+    tog_button: _tog_button
     AnchorLayout:
         anchor_x: 'left'
         BoxLayout:
@@ -40,5 +43,6 @@
                 text: "New task"
                 on_press: root.screen_manager.current = 'add_task_screen'
             TaskTogButton:
+                id: _tog_button
                 text: "Completed"
                 root: root

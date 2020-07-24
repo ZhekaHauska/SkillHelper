@@ -8,6 +8,14 @@ class AddTaskScreen(Screen):
         self.parent_group = None
         self.parent_name = None
 
+    def back(self):
+        if len(self.parent_group.split('/')) > 2:
+            screen_name = "task_info_screen"
+        else:
+            screen_name = "skill_info_screen"
+
+        self.manager.current = screen_name
+
 
 class AddTaskButton(Button):
     def add_task(self):
@@ -20,5 +28,12 @@ class AddTaskButton(Button):
                      "group": group}
 
         self.screen_manager.database.add_item(task_data)
-        self.screen_manager.current = 'skill_info_screen'
+        if len(self.screen_manager.add_task_screen.parent_group.split('/')) > 2:
+            screen_name = "task_info_screen"
+        else:
+            screen_name = "skill_info_screen"
+
+        self.screen_manager.current = screen_name
+
+        self.screen_manager.add_task_screen.back()
 

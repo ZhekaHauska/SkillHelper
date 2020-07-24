@@ -118,9 +118,9 @@ class SkillItem(Item):
             self.canvas.remove(self.selected)
             self.selected = None
             sm = self.parent.parent.screen_manager
-            sm.current = 'skill_info_screen'
 
-            sm.skill_info_screen.refresh(self, hidden=sm.skills_screen.hidden)
+            sm.skill_info_screen.item = sm.database.find_item(self.group, self.name, self.hidden)
+            sm.current = 'skill_info_screen'
 
             return True
         return super(SkillItem, self).on_touch_up(touch)
@@ -132,9 +132,9 @@ class TaskItem(Item):
             self.canvas.remove(self.selected)
             self.selected = None
             sm = self.parent.parent.screen_manager
-            sm.current = 'task_info_screen'
 
-            sm.task_info_screen.refresh(self)
+            sm.task_info_screen.item = sm.database.find_item(self.group, self.name, self.hidden)
+            sm.current = 'task_info_screen'
 
             return True
         return super(TaskItem, self).on_touch_up(touch)

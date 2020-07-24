@@ -3,6 +3,7 @@
     name: "skills_screen"
     items_view: _items_view
     stats: _stats
+    control_panel: _control_panel
     BoxLayout:
         orientation: 'vertical'
         AnchorLayout:
@@ -20,6 +21,7 @@
             id: _items_view
             screen_manager: root.manager
         SkillControlPanel:
+            id: _control_panel
             screen_manager: root.manager
             size_hint: 1, 0.1
         Label:

@@ -9,5 +9,5 @@ class SaveSkillButton(Button):
                       "importance": float(self.item_importance),
                       "group": self.item_group}
 
-        self.screen_manager.db_skills.edit_item(skill_data, self.edit_screen.curr_item['item_id'])
+        self.screen_manager.database.edit_item(skill_data)
         self.screen_manager.current = 'skills_screen'

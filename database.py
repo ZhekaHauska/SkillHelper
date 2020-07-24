@@ -73,6 +73,7 @@ class Database:
     # data manipulations
     def add_item(self, item):
         item = dict(**item)
+        item['hidden'] = False
         if len(item['group'].split('/')) == 1:
             self.data['skills']['items'].append(item)
         else:
@@ -85,7 +86,10 @@ class Database:
 
         self.save()
         
-    def edit_item(self, group, name, item):
+    def edit_item(self, group, name, data, hidden):
+        item = self.find_item(group, name, hidden)
+        for key, value in data.items():
+            item[key] = value
         # TODO edit item
         self.recalculate_max()
         self.recalculate_priority()
@@ -175,8 +179,10 @@ class Database:
         item = self.find_item(group, name, hidden=False)
         dependent_items = self.find_item(g, hidden=False)
 
-        self.data[item_type]['hidden'].append(item)
         self.data[item_type]['items'].remove(item)
+
+        item['hidden'] = True
+        self.data[item_type]['hidden'].append(item)
 
         for x in dependent_items:
             self.hide_item(x['group'], x['name'])
@@ -186,6 +192,8 @@ class Database:
         self.recalculate_max()
 
         self.save()
+
+        return item
 
     def unhide_item(self, group, name):
         g = "/".join([group, name])
@@ -198,8 +206,9 @@ class Database:
         item = self.find_item(group, name, hidden=True)
         dependent_items = self.find_item(g, hidden=True)
 
-        self.data[item_type]['items'].append(item)
         self.data[item_type]['hidden'].remove(item)
+        item['hidden'] = False
+        self.data[item_type]['items'].append(item)
 
         for x in dependent_items:
             self.unhide_item(x['group'], x['name'])
@@ -209,6 +218,8 @@ class Database:
         self.recalculate_max()
 
         self.save()
+
+        return item
 
     def recalculate_priority(self):
         pass
@@ -244,14 +255,15 @@ class Database:
         # self.data['skills'] = sorted(self.skills, key=lambda x: x['priority'], reverse=True)
 
     def add_history_entry(self, entry, dtime):
-        date = pd.to_datetime(time.asctime())
-        self.history.loc[date] = [
-            entry['name'],
-            entry['time'],
-            entry['importance'],
-            dtime,
-            entry['group']
-        ]
+        pass
+        # date = pd.to_datetime(time.asctime())
+        # self.history.loc[date] = [
+        #     entry['name'],
+        #     entry['time'],
+        #     entry['importance'],
+        #     dtime,
+        #     entry['group']
+        # ]
 
     # accessing
     def find_item(self, group, name=None, hidden=False):

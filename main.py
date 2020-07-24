@@ -2,6 +2,7 @@ from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager
 from database import Database
+from kivy.uix.screenmanager import NoTransition
 
 Builder.load_file("skill_helper_widgets.kv")
 Builder.load_file("skill_helper_screen_manager.kv")
@@ -35,7 +36,7 @@ class SkillHelperApp(App):
         db = Database("hauska")
         db.refresh_groups()
         db.refresh_stats()
-        sm = SkillHelperScreenManager(db)
+        sm = SkillHelperScreenManager(db, transition=NoTransition())
 
         sm.current = "group_screen"
         return sm
