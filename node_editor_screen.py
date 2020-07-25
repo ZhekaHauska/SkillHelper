@@ -28,6 +28,8 @@ class NodeEditorScreen(Screen):
                 for node in self.layout['nodes']:
                     self.node_editor.add_widget(Node(type=node['type'],
                                                      text=node['text'],
+                                                     group=node['group'],
+                                                     name=node['name'],
                                                      pos=node['pos']))
                 for connection in self.layout['connections']:
                     for node in self.node_editor.children:
@@ -54,6 +56,8 @@ class NodeEditorScreen(Screen):
                 node['text'] = str(child.text)
                 node['pos'] = int(child.pos[0]), int(child.pos[1])
                 node['type'] = str(child.type)
+                node['group'] = str(child.group)
+                node['name'] = str(child.name)
                 nodes.append(node)
             elif isinstance(child, Connection):
                 connection = dict()
@@ -67,15 +71,14 @@ class NodeEditorScreen(Screen):
             pickle.dump({'nodes': nodes, 'connections': connections}, file)
 
     def calculate_importance(self):
-        self.size_skills = len(self.manager.database.skills)
-        self.size_tasks = len(self.manager.database.tasks)
-        D = np.eye(self.size_skills+self.size_tasks)
-        d = np.eye(self.size_skills+self.size_tasks)
+        self.size_skills = len(self.manager.database.data['skills']['items'])
+        D = np.eye(self.size_skills)
+        d = np.eye(self.size_skills)
 
         for child in self.node_editor.children:
             if isinstance(child, Connection):
-                row = self.find_item(child.node1.text, child.node1.type)
-                col = self.find_item(child.node2.text, child.node2.type)
+                row = self.find_item(child.node1.group, child.node1.name)
+                col = self.find_item(child.node2.group, child.node2.name)
                 if child.direction != 1:
                     D[row, col] = child.strength + 1
                     if child.direction == 2:
@@ -91,20 +94,18 @@ class NodeEditorScreen(Screen):
         d /= d.max()
 
         for row in range(0, self.size_skills):
-            self.manager.database.skills[row]['importance'] = float(0.5*(d[row, row] + self.manager.database.skills[row]['importance']))
+            self.manager.database.data['skills']['items'][row]['importance'] = float(d[row, row])
 
-        for row in range(self.size_skills, D.shape[0]):
-            self.manager.database.tasks[row - self.size_skills]['importance'] = float(0.5*(d[row, row] +
-                                                                                     self.manager.database.tasks[row - self.size_skills]['importance']))
+        self.manager.database.refresh_priority()
+        self.manager.database.sort_items()
+        self.manager.database.save()
 
-        self.manager.database.recalculate_priority()
-
-    def find_item(self, name, type):
-        if type == "skill":
-            idx = self.manager.database.find_item(name)
+    def find_item(self, group, name):
+        for idx, x in enumerate(self.manager.database.data['skills']['items']):
+            if x['group'] == group and x['name'] == name:
+                return idx
         else:
-            idx = self.manager.database.find_item(name) + self.size_skills
-        return idx
+            raise ValueError(f'Skill {group}/{name} is not found.')
 
     def importance(self, D, row):
         value = D[row, row]

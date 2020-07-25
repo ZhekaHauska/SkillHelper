@@ -3,16 +3,12 @@
     orientation: 'horizontal'
     spacing: 5
     name: ""
-    max_time: 100
     time: 0
     description: ""
     item_id: 0
     importance: 0
     Label:
         text: root.name
-    ProgressBar:
-        size_hint: 0.8, 1
-        value_normalized: float(root.time / root.max_time) if root.max_time > 0 else 0
     ColoredIndicator:
         size_hint: 0.1, 1
         val: root.importance
@@ -23,16 +19,12 @@
     orientation: 'horizontal'
     spacing: 5
     name: ""
-    max_time: 100
     time: 0
     description: ""
     item_id: 0
     importance: 0
     Label:
         text: root.name
-    ProgressBar:
-        size_hint: 0.8, 1
-        value_normalized: float(root.time / root.max_time) if root.max_time > 0 else 0
     ColoredIndicator:
         size_hint: 0.1, 1
         val: root.importance
@@ -143,7 +135,8 @@
 
 <NodeItem>:
     name: "name"
-    text: self.name
+    group: "group"
+    text: self.group + '/' + self.name
     text_size: self.size
     halign: "center"
     valign: "center"

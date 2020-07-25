@@ -201,8 +201,7 @@ class NodeEditor(ScatterPlane):
         if self.add_bubble is not None:
             self.remove_widget(self.add_bubble)
             self.add_bubble = None
-        self.data = dict(skills=self.screen_manager.db_skills.items,
-                         tasks=self.screen_manager.db_tasks.items)
+        self.data = self.screen_manager.database.data
         self.add_bubble = AddNodeBubble(self.data)
         self.add_bubble.pos = (x - self.add_bubble.width/2, y)
         self.add_widget(self.add_bubble)
@@ -214,24 +213,13 @@ class AddNodeBubble(Bubble):
         self.data = data
         self.skill_button = BubbleButton(text="skill")
         self.skill_button.bind(on_press=self.show_skills_view)
-        self.task_button = BubbleButton(text="task")
-        self.task_button.bind(on_press=self.show_tasks_view)
         self.add_widget(self.skill_button)
-        self.add_widget(self.task_button)
 
     def show_skills_view(self, instance):
         self.remove_widget(self.skill_button)
-        self.remove_widget(self.task_button)
         self.height *= 2
         self.width *= 1.2
-        self.add_widget(NodesView(self.data['skills'], "skill"))
-
-    def show_tasks_view(self, instance):
-        self.remove_widget(self.skill_button)
-        self.remove_widget(self.task_button)
-        self.height *= 2
-        self.width *= 1.2
-        self.add_widget(NodesView(self.data['tasks'], "task"))
+        self.add_widget(NodesView(self.data['skills']['items'], "skill"))
 
     def on_touch_down(self, touch):
         if not self.collide_point(*touch.pos) and not touch.is_double_tap:
@@ -251,8 +239,10 @@ class NodesView(RecycleView):
 class Node(Label):
     state = ObjectProperty("normal")
 
-    def __init__(self, type, **kwargs):
+    def __init__(self, type, group, name, **kwargs):
         self.type = type
+        self.group = group
+        self.name = name
         if self.type == "skill":
             self.h_color = (0.7, 0.8, 1)
         elif self.type == "task":
@@ -464,8 +454,8 @@ class Handle(Widget):
 
 class NodeItem(BubbleButton):
     def on_press(self):
-        node = Node(type=self.parent.parent.type)
-        node.text = self.name
+        node = Node(type=self.parent.parent.type, group=self.group, name=self.name)
+        node.text = self.group + '/' + self.name
         node.pos = self.parent.parent.parent.parent.pos
         self.parent.parent.parent.parent.parent.add_widget(node, index=0)
         super(NodeItem, self).on_press()

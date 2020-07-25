@@ -24,7 +24,8 @@ class AddTaskButton(Button):
         task_data = {"name": self.task_name.text,
                      "description": self.task_description.text,
                      "time": float(self.task_time.text),
-                     "importance:": float(self.task_importance),
+                     "deadline": self.deadline.text,
+                     "expected_time": float(self.expected_time.text),
                      "group": group}
 
         self.screen_manager.database.add_item(task_data)

@@ -4,6 +4,8 @@
     task_name: _task_name
     task_description: _task_description
     task_time: _task_time
+    deadline: _deadline
+    expected_time: _expected_time
     BoxLayout:
         orientation: 'vertical'
         BoxLayout:
@@ -35,14 +37,23 @@
             BoxLayout:
                 orientation: "vertical"
                 Label:
-                    text: "Importance: " + str(round(_slider.value, 2))
-                ImportanceSlider:
-                    id: _slider
+                    text: "Deadline:"
+                SHTextInput:
+                    id: _deadline
+                    text: "date in format(24-hour): YYYY-MM-DD hh"
+            BoxLayout:
+                orientation: "vertical"
+                Label:
+                    text: "Expected time:"
+                SHTextInput:
+                    id: _expected_time
+                    text: "hours"
         AddTaskButton:
             screen_manager: root.manager
             task_name: _task_name
             task_description: _task_description
             task_time: _task_time
-            task_importance: _slider.value
+            deadline: _deadline
+            expected_time: _expected_time
             text: "Add"
             on_press: self.add_task()

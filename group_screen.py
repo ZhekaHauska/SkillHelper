@@ -6,9 +6,19 @@ from kivy.properties import ObjectProperty
 
 
 class GroupScreen(Screen):
+    def on_pre_enter(self, *args):
+        super(GroupScreen, self).on_pre_enter(*args)
+        self.refresh()
+        try:
+            self.group_view.groups = self.manager.database.groups
+        except AttributeError:
+            pass
+
     def refresh(self):
-        stats = self.manager.database.stats['total']
-        self.stats.text = f"Today: {round(stats['today'], 2)} This week: {round(stats['week'], 2)}"
+        # TODO
+        pass
+        # stats = self.manager.database.stats['total']
+        # self.stats.text = f"Today: {round(stats['today'], 2)} This week: {round(stats['week'], 2)}"
 
 
 class GroupButton(Button):
