@@ -39,6 +39,10 @@ class Database:
 
         # stats
         self.stats = dict()
+        # initialize
+        self.refresh_groups()
+        self.refresh_priority()
+        self.sort_items()
 
     # refreshing
     def refresh_priority(self):
@@ -53,7 +57,7 @@ class Database:
         for x in groups:
             if x not in self.groups:
                 self.data['groups'].append({'name': x, 'priority': 0.0})
-        self.groups = groups
+        self.groups = list(groups)
 
     def refresh_stats(self, group=None):
         today = time.localtime()
@@ -213,7 +217,7 @@ class Database:
     def sort_items(self):
         self.data['skills']['items'] = sorted(self.data['skills']['items'], key=lambda x: x['priority'], reverse=True)
         self.data['tasks']['items'] = sorted(self.data['tasks']['items'], key=lambda x: x['priority'], reverse=True)
-        self.data['groups'] = sorted(self.data['groups'], key=lambda x: x['priority'])
+        self.data['groups'] = sorted(self.data['groups'], key=lambda x: x['priority'], reverse=True)
 
     # priority
     def skills_priority(self):
@@ -251,14 +255,14 @@ class Database:
         for x in dependent:
             total_priority += self.task_priority(x)
 
-        # TODO deadline
         d_time = datetime.strptime(task['deadline'], '%Y-%m-%d %H')
         now = datetime.today()
-        dt = ((d_time - now).seconds / 3600) * 0.33
+        dt = (d_time - now).total_seconds() / 3600
         deadline = task['expected_time'] / (1e-6 + abs(dt))
 
         priority = deadline*exp(-self.sensitivity*time2w) + total_priority
         task['priority'] = priority
+        task['remain'] = dt
         return priority
 
     def groups_priority(self):

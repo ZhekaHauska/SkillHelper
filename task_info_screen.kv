@@ -10,6 +10,9 @@
     options: _options
     items_view: _items_view
     control_panel: _control_panel
+    deadline: _deadline
+    remains: _remains
+    expected_time: _expected_time
     BoxLayout:
         orientation: 'vertical'
         BoxLayout:
@@ -32,6 +35,17 @@
             orientation: 'horizontal'
             BoxLayout:
                 orientation: 'vertical'
+                BoxLayout:
+                    orientation: 'horizontal'
+                    Label:
+                        id: _deadline
+                        text: "Deadline "
+                    Label:
+                        id: _remains
+                        text: "Remains: "
+                Label:
+                    id: _expected_time
+                    text: "Expected time: "
                 TextInput:
                     size_hint: 1, 6
                     id: _item_description

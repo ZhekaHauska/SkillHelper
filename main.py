@@ -34,7 +34,6 @@ class SkillHelperApp(App):
     def build(self):
         # link database and interface
         db = Database("hauska")
-        db.refresh_groups()
         sm = SkillHelperScreenManager(db, transition=NoTransition())
 
         sm.current = "group_screen"

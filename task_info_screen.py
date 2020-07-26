@@ -27,6 +27,9 @@ class TaskInfoScreen(Screen):
         self.item_description.text = self.item['description']
         self.item_time.text = str(round(self.item['time'], 2))
         self.item_group.text = self.item['group']
+        self.deadline.text = f"Deadline: {self.item['deadline']}"
+        self.expected_time.text = f"Expected time: {round(self.item['expected_time'], 2)} hours"
+        self.remains.text = f"Remain: {round(self.item['remain'], 2)} hours"
 
         self.refresh_tasks(self.item['group'] + "/" + self.item['name'])
 

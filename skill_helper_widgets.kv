@@ -14,6 +14,7 @@
         val: root.importance
     Label:
         text: str(round(root.time, 2))
+        size_hint: 0.1, 1
 
 <TaskItem>:
     orientation: 'horizontal'
@@ -30,6 +31,7 @@
         val: root.importance
     Label:
         text: str(round(root.time, 2))
+        size_hint: 0.1, 1
 
 
 <Timer>:
@@ -56,8 +58,8 @@
         Color:
             hsv: self.byr_colormap(self.val)
         Rectangle:
-            size: self.size[0], self.size[0]
-            pos: self.pos[0], self.center_y - self.size[0]/2
+            size: min(self.size[0], self.size[1]) , min(self.size[0], self.size[1])
+            pos: self.pos[0], self.center_y - min(self.size[0], self.size[1])/2
 
 <ImportanceSlider>:
     min: 0
