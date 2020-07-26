@@ -15,7 +15,6 @@ week_days = {'monday': 0,
 
 class Database:
     def __init__(self, db_name):
-        self.show_hidden = False
         # profile
         self.db_name = db_name
         # when your week starts
@@ -38,6 +37,9 @@ class Database:
         except FileNotFoundError:
             self.history = pd.DataFrame(columns=['name', 'group', 'time', 'dtime', 'priority'])
 
+        # stats
+        self.stats = dict()
+
     # refreshing
     def refresh_priority(self):
         self.skills_priority()
@@ -53,37 +55,35 @@ class Database:
                 self.data['groups'].append({'name': x, 'priority': 0.0})
         self.groups = groups
 
-    # TODO
-    # def refresh_stats(self, group=None):
-    #     today = time.localtime()
-    #
-    #     if group is not None:
-    #         history = self.history[self.history.group.str.contains(group)]
-    #     else:
-    #         history = self.history
-    #
-    #     if today.tm_wday >= self.start_week:
-    #         wdays = today.tm_wday - self.start_week
-    #     else:
-    #         wdays = 7 - (self.start_week - today.tm_wday)
-    #     # today
-    #     try:
-    #         today_summary = history[f'{today.tm_year}-{today.tm_mon}-{today.tm_mday}']['dtime'].sum()
-    #     except KeyError:
-    #         today_summary = 0.0
-    #     # week
-    #     start = (date.today() - timedelta(days=wdays)).isoformat()
-    #     end = date.today().isoformat()
-    #     try:
-    #         week_summary = history[start: end]['dtime'].sum()
-    #     except KeyError:
-    #         week_summary = 0.0
-    #
-    #     if group is not None:
-    #         self.stats[group] = {'today': today_summary, 'week': week_summary}
-    #     else:
-    #         self.stats['total']['today'] = today_summary
-    #         self.stats['total']['week'] = week_summary
+    def refresh_stats(self, group=None):
+        today = time.localtime()
+
+        if group is not None:
+            history = self.history[self.history.group.str.contains(group)]
+        else:
+            history = self.history
+
+        if today.tm_wday >= self.start_week:
+            wdays = today.tm_wday - self.start_week
+        else:
+            wdays = 7 - (self.start_week - today.tm_wday)
+        # today
+        try:
+            today_summary = history[f'{today.tm_year}-{today.tm_mon}-{today.tm_mday}']['dtime'].sum()
+        except KeyError:
+            today_summary = 0.0
+        # week
+        start = (date.today() - timedelta(days=wdays)).isoformat()
+        end = date.today().isoformat()
+        try:
+            week_summary = history[start: end]['dtime'].sum()
+        except KeyError:
+            week_summary = 0.0
+
+        if group is not None:
+            self.stats[group] = {'today': today_summary, 'week': week_summary}
+        else:
+            self.stats['total'] = {'today': today_summary, 'week': week_summary}
 
     # edit data
     def add_item(self, item):

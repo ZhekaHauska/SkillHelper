@@ -6,19 +6,21 @@ from kivy.properties import ObjectProperty
 
 
 class GroupScreen(Screen):
+    def __init__(self, **kwargs):
+        super(GroupScreen, self).__init__(**kwargs)
+
     def on_pre_enter(self, *args):
         super(GroupScreen, self).on_pre_enter(*args)
-        self.refresh()
         try:
             self.group_view.groups = self.manager.database.groups
+            self.refresh()
         except AttributeError:
             pass
 
     def refresh(self):
-        # TODO
-        pass
-        # stats = self.manager.database.stats['total']
-        # self.stats.text = f"Today: {round(stats['today'], 2)} This week: {round(stats['week'], 2)}"
+        self.manager.database.refresh_stats()
+        stats = self.manager.database.stats['total']
+        self.stats.text = f"Today: {round(stats['today'], 2)} This week: {round(stats['week'], 2)}"
 
 
 class GroupButton(Button):
