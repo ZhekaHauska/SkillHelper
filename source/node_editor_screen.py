@@ -1,7 +1,7 @@
 from kivy.uix.screenmanager import Screen
-from skill_helper_widgets import NodeEditor
+from source.widgets import NodeEditor
 import pickle
-from skill_helper_widgets import Node, Connection
+from source.widgets import Node, Connection
 import numpy as np
 
 

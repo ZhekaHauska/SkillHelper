@@ -1,11 +1,12 @@
-#:import edit_task_screen edit_task_screen
-<EditTaskScreen@Screen>:
-    name: "edit_task_screen"
+#:import skill_edit_screen source.skill_edit_screen
+<EditSkillScreen@Screen>:
+    name: "edit_skill_screen"
     item_name: _item_name
     item_description: _item_description
     item_time: _item_time
     item_importance: _slider
     curr_item: None
+    item_group: _group
     BoxLayout:
         orientation: 'vertical'
         BoxLayout:
@@ -14,10 +15,10 @@
             Button:
                 size_hint: 0.1, 1
                 text: "Back"
-                on_press: root.manager.current = "tasks_screen"
+                on_press: root.manager.current = "skills_screen"
             SHTextInput:
                 id: _item_name
-                text: "Task name"
+                text: "Skill name"
                 multiline: False
         SHTextInput:
             size_hint: 1, 3
@@ -36,15 +37,24 @@
             BoxLayout:
                 orientation: "vertical"
                 Label:
+                    text: "Group"
+                SHTextInput:
+                    id: _group
+                    text: ""
+                    multiline: False
+            BoxLayout:
+                orientation: "vertical"
+                Label:
                     text: "Importance: " + str(round(_slider.value, 2))
                 ImportanceSlider:
                     id: _slider
-        SaveTaskButton:
+        SaveSkillButton:
             edit_screen: root
             screen_manager: root.manager
             item_name: _item_name
             item_description: _item_description
             item_time: _item_time
             item_importance: _slider.value
+            item_group: _group.text
             text: "Save"
             on_press: self.edit_item()

@@ -4,8 +4,8 @@ __pycache__/
 skills.yaml
 tasks.yaml
 /hauska.yaml
-/hauska_history.csv
-/layout.pkl
+/source/hauska_history.csv
+/source/layout.pkl
 /skills_history.csv
 /test.csv
 /test.h5
