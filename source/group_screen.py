@@ -12,7 +12,7 @@ class GroupScreen(Screen):
     def on_pre_enter(self, *args):
         super(GroupScreen, self).on_pre_enter(*args)
         try:
-            self.group_view.groups = self.manager.database.groups
+            self.group_view.groups = self.manager.database.data['groups']
             self.refresh()
         except AttributeError:
             pass
@@ -26,9 +26,9 @@ class GroupScreen(Screen):
 class GroupButton(Button):
     def __init__(self, group, screen_manager, **kwargs):
         super(GroupButton, self).__init__(**kwargs)
-        self.group = group
+        self.group = group['name']
         self.screen_manager = screen_manager
-        self.text = group
+        self.text = group['name'] + f"\nPriority: {round(group['priority'], 2)}"
         self.text_size = self.size
 
     def on_press(self):

@@ -218,6 +218,7 @@ class Database:
         self.data['skills']['items'] = sorted(self.data['skills']['items'], key=lambda x: x['priority'], reverse=True)
         self.data['tasks']['items'] = sorted(self.data['tasks']['items'], key=lambda x: x['priority'], reverse=True)
         self.data['groups'] = sorted(self.data['groups'], key=lambda x: x['priority'], reverse=True)
+        self.groups = [x['name'] for x in self.data['groups']]
 
     # priority
     def skills_priority(self):
