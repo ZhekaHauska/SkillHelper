@@ -13,6 +13,7 @@
     deadline: _deadline
     remains: _remains
     expected_time: _expected_time
+    average_speed: _average_speed
     BoxLayout:
         orientation: 'vertical'
         BoxLayout:
@@ -43,9 +44,14 @@
                     Label:
                         id: _remains
                         text: "Remains: "
-                Label:
-                    id: _expected_time
-                    text: "Expected time: "
+                BoxLayout:
+                    orientation: 'horizontal'
+                    Label:
+                        id: _expected_time
+                        text: "Expected time: "
+                    Label:
+                        id: _average_speed
+                        text: 'Average speed(expected)h/d: '
                 TextInput:
                     size_hint: 1, 6
                     id: _item_description

@@ -1,6 +1,6 @@
 from kivy.uix.button import Button
 from kivy.uix.screenmanager import Screen
-
+from datetime import datetime
 
 class AddTaskScreen(Screen):
     def __init__(self, **kwargs):
@@ -26,7 +26,8 @@ class AddTaskButton(Button):
                      "time": float(self.task_time.text),
                      "deadline": self.deadline.text,
                      "expected_time": float(self.expected_time.text),
-                     "group": group}
+                     "group": group,
+                     "started": datetime.today().strftime("%Y-%m-%d %H")}
 
         self.screen_manager.database.add_item(task_data)
         if len(self.screen_manager.add_task_screen.parent_group.split('/')) > 2:

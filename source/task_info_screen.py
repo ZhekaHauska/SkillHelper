@@ -31,6 +31,12 @@ class TaskInfoScreen(Screen):
         self.expected_time.text = f"Expected time: {round(self.item['expected_time'], 2)} hours"
         self.remains.text = f"Remain: {round(self.item['remain'], 2)} hours"
 
+        self.average_speed.text = f"Speed: {round(self.item['average_speed'], 2)}({round(self.item['expected_average_speed'], 2)})h/d"
+        if round(self.item['average_speed'], 2) < round(self.item['expected_average_speed'], 2):
+            self.average_speed.color = (1, 0, 0, 1)
+        else:
+            self.average_speed.color = (0, 0, 1, 1)
+
         self.refresh_tasks(self.item['group'] + "/" + self.item['name'])
 
         self.manager.add_task_screen.parent_group = self.item['group']

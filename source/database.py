@@ -260,8 +260,20 @@ class Database:
         now = datetime.today()
         dt = (d_time - now).total_seconds() / 3600
         deadline = task['expected_time'] / (1e-6 + abs(dt))
+        # average speed
+        # for compatibility
+        try:
+            started = datetime.strptime(task['started'], '%Y-%m-%d %H')
+        except KeyError:
+            task['started'] = "2020-07-26 12"
+            started = datetime.strptime(task['started'], '%Y-%m-%d %H')
+        # hours per day
+        av_speed = task['time'] * 3600 * 24 / (1e-6 + (now - started).total_seconds())
+        exp_speed = task['expected_time'] * 3600 * 24 / (1e-6 + (d_time - started).total_seconds())
 
-        priority = deadline*exp(-self.sensitivity*time2w) + total_priority
+        priority = deadline*(exp_speed / (1e-6 + av_speed)) + total_priority
+        task['average_speed'] = av_speed
+        task['expected_average_speed'] = exp_speed
         task['priority'] = priority
         task['remain'] = dt
         return priority
