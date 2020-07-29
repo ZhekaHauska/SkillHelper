@@ -20,7 +20,15 @@ class GroupScreen(Screen):
     def refresh(self):
         self.manager.database.refresh_stats()
         stats = self.manager.database.stats['total']
+        total_speed = 0
+        for x in self.manager.database.data['groups']:
+            total_speed += x['expected_speed']
         self.stats.text = f"Today: {round(stats['today'], 2)} This week: {round(stats['week'], 2)}"
+        self.speed.text = f"Expected speed: {round(total_speed, 2)} h/d"
+        if total_speed > stats['today'] and total_speed > 8:
+            self.speed.color = (1, 0, 0, 1)
+        else:
+            self.speed.color = (0, 0, 1, 1)
 
 
 class GroupButton(Button):
@@ -28,7 +36,7 @@ class GroupButton(Button):
         super(GroupButton, self).__init__(**kwargs)
         self.group = group['name']
         self.screen_manager = screen_manager
-        self.text = group['name'] + f"\nPriority: {round(group['priority'], 2)}"
+        self.text = group['name'] + f"\nPriority: {round(group['priority'], 2)}\nSpeed: {round(group['speed'], 2)} ({round(group['expected_speed'], 2)}) h/d"
         self.text_size = self.size
 
     def on_press(self):
