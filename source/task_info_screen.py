@@ -84,7 +84,8 @@ class AddTaskTimeButton(Button):
                                               self.screen_manager.task_info_screen.item['name'],
                                               float(self.add_time_amount.text))
         new_time = float(self.screen_manager.task_info_screen.item_time.text) + float(self.add_time_amount.text)
-        self.screen_manager.task_info_screen.item_time.text = str(round(new_time, 2))
+        self.screen_manager.group_screen.refresh()
+        self.screen_manager.task_info_screen.refresh()
 
 
 class RemoveTaskButton(Button):
