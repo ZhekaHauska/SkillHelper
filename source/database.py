@@ -235,9 +235,12 @@ class Database:
             x['time2w'] = float(time2w)
             dependent = self.get_items('tasks', x['group'] + '/' + x['name'])
             total_priority = 0
+            total_speed = 0
             for y in dependent:
                 total_priority += self.task_priority(y)
+                total_speed += y['expected_average_speed']
             x['priority'] = exp(-self.sensitivity*time2w) * total_priority * (1 + x['importance'])
+            x['expected_speed'] = total_speed
 
     def task_priority(self, task):
         if self.history.empty:
@@ -269,7 +272,9 @@ class Database:
             started = datetime.strptime(task['started'], '%Y-%m-%d %H')
         # hours per day
         av_speed = task['time'] * 3600 * 24 / (1e-6 + (now - started).total_seconds())
-        exp_speed = task['expected_time'] * 3600 * 24 / (1e-6 + (d_time - started).total_seconds())
+        exp_speed = (task['expected_time'] - task['time']) * 3600 * 24 / (1e-6 + (d_time - now).total_seconds())
+        if exp_speed < 0:
+            exp_speed = 0
 
         priority = deadline*(exp_speed / (1e-6 + av_speed)) + total_priority
         task['average_speed'] = av_speed
@@ -282,9 +287,12 @@ class Database:
         for x in self.data['groups']:
             dependent = self.get_items('skills', x['name'])
             total_priority = 0
+            total_speed = 0
             for y in dependent:
                 total_priority += y['priority']
+                total_speed += y['expected_speed']
             x['priority'] = total_priority
+            x['expected_speed'] = total_speed
 
     # accessing
     def find_item(self, group, name=None, hidden=False):
