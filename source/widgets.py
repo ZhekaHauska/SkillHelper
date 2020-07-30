@@ -3,6 +3,7 @@ from kivy.graphics import Line, Color
 from kivy.uix.textinput import TextInput
 from kivy.clock import Clock
 from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import ObjectProperty, NumericProperty
 from kivy.uix.slider import Slider
 from kivy.uix.relativelayout import RelativeLayout
@@ -14,6 +15,7 @@ from kivy.graphics import Triangle, Ellipse, Rectangle, RoundedRectangle
 from kivy.uix.bubble import Bubble, BubbleButton
 from kivy.uix.scatter import ScatterPlane
 from kivy.uix.recycleview import RecycleView
+from kivy.uix.button import Button
 import numpy as np
 import math
 
@@ -459,3 +461,59 @@ class NodeItem(BubbleButton):
         node.pos = self.parent.parent.parent.parent.pos
         self.parent.parent.parent.parent.parent.add_widget(node, index=0)
         super(NodeItem, self).on_press()
+
+
+class EditableLabel(RelativeLayout):
+    text = ObjectProperty()
+
+    def __init__(self, **kwargs):
+        self.label = Label()
+        self.input = None
+        self.screen = None
+        super(EditableLabel, self).__init__(**kwargs)
+
+        self.add_widget(self.label)
+
+    def on_text(self, *args):
+        self.label.text = self.text
+
+    def apply(self, *args):
+        # default
+        self.text = self.input.text
+        self.remove_widget(self.input)
+        self.add_widget(self.label)
+
+    def cancel(self, instance, value):
+        if not value:
+            self.remove_widget(self.children[0])
+            self.add_widget(self.label)
+
+    def focus(self, *args):
+        self.children[0].focus = True
+
+    def on_touch_down(self, touch):
+        if touch.is_double_tap:
+            if self.collide_point(*touch.pos):
+                self.input = TextInput(text=self.text, multiline=False, halign='center',
+                                       valign='center')
+                self.input.bind(on_text_validate=self.apply)
+                self.input.bind(focus=self.cancel)
+
+                self.remove_widget(self.label)
+
+                self.add_widget(self.input)
+                Clock.schedule_once(self.focus, 0.5)
+
+        super(EditableLabel, self).on_touch_down(touch)
+
+
+class DeadlineLabel(EditableLabel):
+    def apply(self, *args):
+        super(DeadlineLabel, self).apply(*args)
+        self.screen.save({'deadline': self.text})
+
+
+class ExpectedTimeLabel(EditableLabel):
+    def apply(self, *args):
+        super(ExpectedTimeLabel, self).apply(*args)
+        self.screen.save({'expected_time': float(self.text)})

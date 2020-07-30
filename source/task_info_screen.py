@@ -27,8 +27,8 @@ class TaskInfoScreen(Screen):
         self.item_description.text = self.item['description']
         self.item_time.text = str(round(self.item['time'], 2))
         self.item_group.text = self.item['group']
-        self.deadline.text = f"Deadline: {self.item['deadline']}"
-        self.expected_time.text = f"Expected time: {round(self.item['expected_time'], 2)} hours"
+        self.deadline.text = self.item['deadline']
+        self.expected_time.text = str(round(self.item['expected_time']))
         self.remains.text = f"Remain: {round(self.item['remain'], 2)} hours"
 
         self.average_speed.text = f"Speed: {round(self.item['average_speed'], 2)} ({round(self.item['expected_average_speed'], 2)}) h/d"
@@ -59,7 +59,7 @@ class TaskInfoScreen(Screen):
     def on_leave(self, *args):
         super(TaskInfoScreen, self).on_leave(*args)
         if self.item is not None:
-            self.save()
+            self.save({'description': self.item_description.text})
     
     def back(self):
         item_name = self.item_group.text.split("/")
@@ -73,9 +73,11 @@ class TaskInfoScreen(Screen):
         self.manager.current = screen_name
         self.manager.get_screen(screen_name).item = item
 
-    def save(self):
+    def save(self, data):
         self.manager.database.edit_item(self.item['group'], self.item['name'],
-                                        {'description': self.item_description.text}, self.item['hidden'])
+                                        data,
+                                        self.item['hidden'])
+        self.refresh()
 
 
 class AddTaskTimeButton(Button):
@@ -115,6 +117,5 @@ class UnhideTaskButton(Button):
 
 class TaskBackButton(Button):
     def on_press(self):
-        self.screen_manager.task_info_screen.save()
         self.screen_manager.task_info_screen.back()
 

@@ -1,4 +1,5 @@
 #:import task_info_screen source.task_info_screen
+#:import widgets source.widgets
 <TaskInfoScreen>:
     name: 'task_info_screen'
     item_name: _item_name
@@ -38,17 +39,37 @@
                 orientation: 'vertical'
                 BoxLayout:
                     orientation: 'horizontal'
-                    Label:
-                        id: _deadline
-                        text: "Deadline "
+                    BoxLayout:
+                        orientation: "horizontal"
+                        Label:
+                            size_hint: None, 1
+                            size: self.texture_size
+                            text: "Deadline:"
+                            halign: "right"
+                        DeadlineLabel:
+                            id: _deadline
+                            screen: root
                     Label:
                         id: _remains
                         text: "Remains: "
                 BoxLayout:
                     orientation: 'horizontal'
-                    Label:
-                        id: _expected_time
-                        text: "Expected time: "
+                    BoxLayout:
+                        orientation: "horizontal"
+                        Label:
+                            size_hint: None, 1
+                            size: self.texture_size
+                            text: "Expected time:"
+                            halign: 'right'
+                        ExpectedTimeLabel:
+                            size_hint: 0.2, 1
+                            id: _expected_time
+                            screen: root
+                        Label:
+                            size_hint: None, 1
+                            size: self.texture_size
+                            text: "hours"
+                            halign: 'left'
                     Label:
                         id: _average_speed
                         text: 'Average speed(expected)h/d: '
