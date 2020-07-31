@@ -3,6 +3,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.properties import ObjectProperty
+from kivy.uix.label import Label
 
 
 class GroupScreen(Screen):
@@ -30,13 +31,15 @@ class GroupScreen(Screen):
         else:
             self.speed.color = (0, 0, 1, 1)
 
+        self.group_view.refresh()
+
 
 class GroupButton(Button):
     def __init__(self, group, screen_manager, **kwargs):
         super(GroupButton, self).__init__(**kwargs)
         self.group = group['name']
         self.screen_manager = screen_manager
-        self.text = group['name'] + f"\nPriority: {round(group['priority'], 2)}\nSpeed: {round(group['speed'], 2)} ({round(group['expected_speed'], 2)}) h/d"
+        self.text = group['name']
         self.text_size = self.size
 
     def on_press(self):
@@ -44,20 +47,40 @@ class GroupButton(Button):
         self.screen_manager.skills_screen.refresh(self.group)
 
 
-class GroupView(BoxLayout):
+class GroupView(GridLayout):
     groups = ObjectProperty()
 
     def __init__(self, **kwargs):
         super(GroupView, self).__init__(**kwargs)
+        self.rows = 2
         self.buttons = list()
+        self.labels = list()
+
+    def refresh(self):
+        for group, label in zip(self.groups, self.labels):
+            label.text = f"\nPriority: {round(group['priority'], 2)}\nSpeed: {round(group['speed'], 2)} ({round(group['expected_speed'], 2)}) h/d"
 
     def on_groups(self, instance, value):
-        for button in self.buttons:
+        for button, label in zip(self.buttons, self.labels):
             self.remove_widget(button)
+            self.remove_widget(label)
         self.buttons = list()
+        self.labels = list()
+
+        cols = len(self.groups)
+        self.cols = cols
         for group in self.groups:
-            button = GroupButton(group=group, screen_manager=self.screen_manager)
+            button = GroupButton(group=group, screen_manager=self.screen_manager, valign='center', halign='center')
             self.buttons.append(button)
             self.add_widget(button)
+
+        for group in self.groups:
+            text = f"""Priority: {round(group['priority'], 2)}
+
+                       Speed: {round(group['speed'], 2)} ({round(group['expected_speed'], 2)}) h/d"""
+            label = Label(text=text, valign='top')
+            label.text_size = label.size
+            self.labels.append(label)
+            self.add_widget(label)
 
         self.group_screen.refresh()

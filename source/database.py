@@ -274,8 +274,8 @@ class Database:
             task['started'] = "2020-07-26 12"
             started = datetime.strptime(task['started'], '%Y-%m-%d %H')
         # hours per day
-        av_speed = task['time'] * 3600 * 24 / (1e-6 + (now - started).total_seconds())
-        exp_speed = (task['expected_time'] - task['time']) * 3600 * 24 / (1e-6 + (d_time - now).total_seconds())
+        av_speed = task['time'] / (int((1e-6 + (now - started).total_seconds()) / (3600 * 24)) + 1)
+        exp_speed = (task['expected_time'] - task['time']) / (int((1e-6 + (d_time - now).total_seconds()) / (3600 * 24)) + 1)
         if exp_speed < 0:
             exp_speed = 0
 
