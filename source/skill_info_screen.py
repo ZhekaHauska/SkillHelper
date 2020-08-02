@@ -10,7 +10,8 @@ class SkillInfoScreen(Screen):
         super(SkillInfoScreen, self).__init__(**kw)
 
     def on_item(self, *args):
-        self.refresh()
+        if self.item is not None:
+            self.refresh()
 
     def refresh(self):
         if self.item['hidden']:
