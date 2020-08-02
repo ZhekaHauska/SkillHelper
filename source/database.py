@@ -273,7 +273,7 @@ class Database:
         except KeyError:
             task['started'] = "2020-07-26 12"
             started = datetime.strptime(task['started'], '%Y-%m-%d %H')
-        # hours per day
+        # hours per dayy
         av_speed = task['time'] / (int(((now - started).total_seconds()) / (3600 * 24)) + 1)
         if (d_time - now).total_seconds() < 0:
             exp_speed = 0
