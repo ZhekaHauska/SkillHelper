@@ -274,12 +274,17 @@ class Database:
             task['started'] = "2020-07-26 12"
             started = datetime.strptime(task['started'], '%Y-%m-%d %H')
         # hours per day
-        av_speed = task['time'] / (int((1e-6 + (now - started).total_seconds()) / (3600 * 24)) + 1)
-        exp_speed = (task['expected_time'] - task['time']) / (int((1e-6 + (d_time - now).total_seconds()) / (3600 * 24)) + 1)
-        if exp_speed < 0:
+        av_speed = task['time'] / (int(((now - started).total_seconds()) / (3600 * 24)) + 1)
+        if (d_time - now).total_seconds() < 0:
             exp_speed = 0
+        else:
+            exp_speed = (task['expected_time'] - task['time']) / (
+                        int(((d_time - now).total_seconds()) / (3600 * 24)) + 1)
 
-        priority = deadline*(exp_speed / (1e-6 + av_speed)) + total_priority
+        if exp_speed < 0.1:
+            priority = deadline + total_priority
+        else:
+            priority = deadline*(exp_speed / (1e-6 + av_speed)) + total_priority
         task['average_speed'] = av_speed
         task['expected_average_speed'] = exp_speed
         task['priority'] = priority
