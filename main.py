@@ -37,7 +37,7 @@ class SkillHelperApp(App):
         db = Database("hauska")
         sm = SkillHelperScreenManager(db, transition=NoTransition())
 
-        sm.current = "timeline_screen"
+        sm.current = "group_screen"
         return sm
 
 

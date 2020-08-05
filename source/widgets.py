@@ -74,7 +74,7 @@ def rgb_to_hsv(r, g, b):
     return h, s, v
 
 
-def byr_colormap(value, saturation=0.8):
+def byr_colormap(value, saturation=0.6):
     # value - float between 0 and 1
     if value < 0.5:
         color = (2*value, 2*value, (0.5 - value)*2)

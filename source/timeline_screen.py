@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from kivy.uix.button import Button
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.floatlayout import FloatLayout
-from kivy.graphics import Line
+from kivy.graphics import Line, Rectangle, Color
 from kivy.uix.label import Label
 from dateutil.relativedelta import relativedelta
 from kivy.clock import Clock
@@ -31,10 +31,13 @@ class TasksOverview(ScrollView):
 
     def __init__(self, **kwargs):
         super(TasksOverview, self).__init__(**kwargs)
-        self.box_layout = BoxLayout(orientation='vertical', size_hint_y=None)
+        self.box_layout = BoxLayout(orientation='vertical', size_hint_y=None,
+                                    spacing=2, padding=[1, 1, 1, 1])
         self.box_layout.bind(minimum_height=self.box_layout.setter('height'))
 
     def on_data(self, instance, value):
+        self.clear_widgets()
+        self.box_layout.clear_widgets()
         for item in value:
             self.box_layout.add_widget(TaskOverviewItem(**item, size_hint_y=None, height=60))
         self.add_widget(self.box_layout)
@@ -55,6 +58,7 @@ class TimelineScreen(Screen):
     def on_enter(self, *args):
         super(TimelineScreen, self).on_enter(*args)
         Clock.schedule_once(self.set_time_scale, 0.1)
+        Clock.schedule_once(self.load_display.draw, 0.2)
 
     def refresh(self):
         data = list()
@@ -136,6 +140,10 @@ class ApplyDeadlineButton(Button):
                                                            {'deadline': item.deadline_label.text},
                                                            False)
         self.info.text = 'All deadlines have saved!'
+        Clock.schedule_once(self.clear_info, 5)
+
+    def clear_info(self, *args):
+        self.info.text = ""
 
 
 class TimeScale(RelativeLayout):
@@ -188,6 +196,41 @@ class TimeScale(RelativeLayout):
                     prev_month = next_month
 
 
+class LoadDisplay(RelativeLayout):
+    def on_touch_up(self, touch):
+        super(LoadDisplay, self).on_touch_up(touch)
+        self.draw()
+
+    def draw(self, *args):
+        disp = 14
+        length = self.width - 2 * disp
+        height = self.height
+        self.canvas.clear()
+        value = self.max_days
+        if value > 0:
+            if value <= 35:
+                dt = length / value
+                step = 1
+            else:
+                dt = length / value * 7
+                step = 7
+
+            with self.canvas:
+                x = disp
+                day = 1
+                while x <= length + disp:
+                    load = 0
+                    for item in self.tasks.box_layout.children:
+                        if item.slider.value >= day:
+                            load += item.speed
+                    if load > 12:
+                        v = 1
+                    else:
+                        v = load / 12
+                    Color(*byr_colormap(v), mode='hsv')
+                    Rectangle(pos=(x, 0), size=(dt, height))
+                    x += dt
+                    day += step
 
 
 

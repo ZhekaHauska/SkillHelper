@@ -1,4 +1,5 @@
 #:import timeline_screen source.timeline_screen
+<LoadDisplay>:
 
 <TimeScale>:
 
@@ -18,32 +19,41 @@
     slider: _slider
     orientation: 'horizontal'
     BoxLayout:
-        size_hint: 0.3, 1
+        size_hint: 0.4, 1
         orientation: 'vertical'
+        spacing: 1
+        padding: [1, 1, 1, 1]
+        canvas:
+            Color:
+                rgb: 1, 1, 1
+            Line:
+                points: self.pos[0], self.pos[1],  self.pos[0] + self.size[0], self.pos[1]
         BoxLayout:
             orientation: 'horizontal'
+            spacing: 1
+            padding: [1, 1, 1, 1]
             Label:
+                split_str: " "
                 text: root.name
                 text_size: (self.size[0], None)
                 halign: 'left'
                 valign: 'center'
                 shorten: True
-                shorten_from: 'center'
-                split_str: ' '
+                shorten_from: 'left'
             Label:
                 id: _deadline
                 text: root.deadline
                 text_size: self.size
-                halign: 'left'
+                halign: 'right'
                 valign: 'center'
         Label:
+            split_str: "/"
             text: root.group
             text_size: self.size
             halign: 'left'
             valign: 'center'
             shorten: True
             shorten_from: 'left'
-            split_str: '/'
     TimeSlider:
         id: _slider
         days: root.days
@@ -57,6 +67,7 @@
     name: "timeline_screen"
     tasks: _tasks
     time_scale: _scale
+    load_display: _load_display
     BoxLayout:
         orientation: 'vertical'
         TasksOverview:
@@ -65,7 +76,7 @@
         BoxLayout:
             size_hint: (1, 0.1)
             Slider:
-                size_hint: (0.3, 1)
+                size_hint: (0.4, 1)
                 id: _scale
                 min: 7
                 max: 371
@@ -73,6 +84,15 @@
                 value: 180
             TimeScale:
                 max_days: _scale.value
+        BoxLayout:
+            size_hint: (1, 0.05)
+            Label:
+                size_hint: (0.4, 1)
+                text: 'Load'
+            LoadDisplay:
+                id: _load_display
+                max_days: _scale.value
+                tasks: _tasks
         BoxLayout:
             size_hint: (1, 0.1)
             orientation: 'horizontal'
