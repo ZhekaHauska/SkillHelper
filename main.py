@@ -22,6 +22,7 @@ Builder.load_file("source/task_add_screen.kv")
 Builder.load_file("source/task_edit_screen.kv")
 
 Builder.load_file("source/node_editor_screen.kv")
+Builder.load_file("source/timeline_screen.kv")
 
 
 class SkillHelperScreenManager(ScreenManager):
@@ -36,7 +37,7 @@ class SkillHelperApp(App):
         db = Database("hauska")
         sm = SkillHelperScreenManager(db, transition=NoTransition())
 
-        sm.current = "group_screen"
+        sm.current = "timeline_screen"
         return sm
 
 
