@@ -58,7 +58,8 @@ class GroupView(GridLayout):
 
     def refresh(self):
         for group, label in zip(self.groups, self.labels):
-            label.text = f"\nPriority: {round(group['priority'], 2)}\nSpeed: {round(group['speed'], 2)} ({round(group['expected_speed'], 2)}) h/d"
+            label.children[0].text = f"\nPriority: {round(group['priority'], 2)}"
+            label.children[1].text = f"Speed: {round(group['speed'], 2)} ({round(group['expected_speed'], 2)}) h/d"
 
     def on_groups(self, instance, value):
         for button, label in zip(self.buttons, self.labels):
@@ -70,17 +71,26 @@ class GroupView(GridLayout):
         cols = len(self.groups)
         self.cols = cols
         for group in self.groups:
-            button = GroupButton(group=group, screen_manager=self.screen_manager, valign='center', halign='center')
+            button = GroupButton(group=group, screen_manager=self.screen_manager, valign='center', halign='center',
+                                 size_hint_y=None)
+            button.bind(height=button.setter('width'))
             self.buttons.append(button)
             self.add_widget(button)
 
         for group in self.groups:
-            text = f"""Priority: {round(group['priority'], 2)}
+            text = [f"Priority: {round(group['priority'], 2)}",
+                    f"Speed: {round(group['speed'], 2)} ({round(group['expected_speed'], 2)}) h/d"]
+            layout = BoxLayout(orientation='vertical', spacing=2)
 
-                       Speed: {round(group['speed'], 2)} ({round(group['expected_speed'], 2)}) h/d"""
-            label = Label(text=text, valign='top')
+            label = Label(text=text[0], valign='center')
             label.text_size = label.size
-            self.labels.append(label)
-            self.add_widget(label)
+            layout.add_widget(label)
+
+            label = Label(text=text[1], valign='center')
+            label.text_size = label.size
+            layout.add_widget(label)
+
+            self.labels.append(layout)
+            self.add_widget(layout)
 
         self.group_screen.refresh()
