@@ -1,0 +1,103 @@
+#:import timeline_screen source.timeline_screen
+
+<TimeScale>:
+
+<TasksOverview>:
+    box_layout: _box_layout
+    viewclass: 'TaskOverviewItem'
+    bar_width: 5
+    scroll_type: ["bars", "content"]
+    RecycleBoxLayout:
+        id: _box_layout
+        default_size: None, dp(70)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+        spacing: 2
+
+<TaskOverviewItem>:
+    name: "task"
+    group: "group"
+    deadline: "deadline"
+    days: 1
+    speed: 0
+    deadline_label: _deadline
+    time_scale: 180
+    current_deadline: "deadline"
+
+    slider: _slider
+    orientation: 'horizontal'
+    BoxLayout:
+        size_hint: 0.3, 1
+        orientation: 'vertical'
+        BoxLayout:
+            orientation: 'horizontal'
+            Label:
+                text: root.name
+                text_size: (self.size[0], None)
+                halign: 'left'
+                valign: 'center'
+                shorten: True
+                shorten_from: 'center'
+                split_str: ' '
+            Label:
+                id: _deadline
+                text: root.deadline
+                text_size: self.size
+                halign: 'left'
+                valign: 'center'
+        Label:
+            text: root.group
+            text_size: self.size
+            halign: 'left'
+            valign: 'center'
+            shorten: True
+            shorten_from: 'left'
+            split_str: '/'
+    TimeSlider:
+        id: _slider
+        days: root.days
+        speed: root.speed
+        expected_speed: root.speed
+        deadline_label: _deadline
+        deadline: root.current_deadline
+        max: root.time_scale
+
+<TimelineScreen>:
+    name: "timeline_screen"
+    tasks: _tasks
+    time_scale: _scale
+    BoxLayout:
+        orientation: 'vertical'
+        TasksOverview:
+            id: _tasks
+            time_scale: _scale.value
+        BoxLayout:
+            size_hint: (1, 0.1)
+            Slider:
+                size_hint: (0.3, 1)
+                id: _scale
+                min: 7
+                max: 371
+                step: 7
+                value: 180
+            TimeScale:
+                max_days: _scale.value
+        BoxLayout:
+            size_hint: (1, 0.1)
+            orientation: 'horizontal'
+            Button:
+                size_hint: (0.1, 1)
+                text: 'Back'
+                on_press: root.manager.current = 'group_screen'
+            Label:
+                id: _info
+                text: ""
+            ApplyDeadlineButton:
+                info: _info
+                tasks: _tasks
+                screen_manager: root.manager
+                size_hint: (0.1, 1)
+                text: 'Apply'
+
