@@ -75,13 +75,14 @@ def rgb_to_hsv(r, g, b):
 
 
 def byr_colormap(value, saturation=0.8):
+    # value - float between 0 and 1
     if value < 0.5:
         color = (2*value, 2*value, (0.5 - value)*2)
     else:
         color = (1, (1 - value)*2, 0)
 
     color = rgb_to_hsv(*color)
-    color = (color[0], saturation, color[2])
+    color = (color[0], saturation, 1)
     return color
 
 
@@ -89,6 +90,7 @@ class ColoredIndicator(AnchorLayout):
     val = ObjectProperty(float(0))
 
     def byr_colormap(self, value, saturation=0.8):
+        # value - float between 0 and 1
         if value < 0.5:
             color = (2*value, 2*value, (0.5 - value)*2)
         else:
