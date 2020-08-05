@@ -3,18 +3,8 @@
 <TimeScale>:
 
 <TasksOverview>:
-    box_layout: _box_layout
-    viewclass: 'TaskOverviewItem'
-    bar_width: 5
-    scroll_type: ["bars", "content"]
-    RecycleBoxLayout:
-        id: _box_layout
-        default_size: None, dp(70)
-        default_size_hint: 1, None
-        size_hint_y: None
-        height: self.minimum_height
-        orientation: 'vertical'
-        spacing: 2
+    do_scroll_x: False
+    do_scroll_y: True
 
 <TaskOverviewItem>:
     name: "task"
@@ -24,7 +14,6 @@
     speed: 0
     deadline_label: _deadline
     time_scale: 180
-    current_deadline: "deadline"
 
     slider: _slider
     orientation: 'horizontal'
@@ -61,7 +50,7 @@
         speed: root.speed
         expected_speed: root.speed
         deadline_label: _deadline
-        deadline: root.current_deadline
+        deadline: root.deadline
         max: root.time_scale
 
 <TimelineScreen>:

@@ -12,18 +12,32 @@ from kivy.graphics import Line
 from kivy.uix.label import Label
 from dateutil.relativedelta import relativedelta
 from kivy.clock import Clock
+from kivy.uix.scrollview import ScrollView
 
 
 class TaskOverviewItem(BoxLayout):
-    pass
+    def __init__(self, name, group, deadline, days, speed, **kwargs):
+        super(TaskOverviewItem, self).__init__(**kwargs)
+        self.name = name
+        self.group = group
+        self.deadline = deadline
+        self.days = days
+        self.speed = speed
 
 
-class TasksOverview(RecycleView):
+class TasksOverview(ScrollView):
     time_scale = NumericProperty(7)
+    data = ObjectProperty()
 
     def __init__(self, **kwargs):
         super(TasksOverview, self).__init__(**kwargs)
-        self.data = [dict()]
+        self.box_layout = BoxLayout(orientation='vertical', size_hint_y=None)
+        self.box_layout.bind(minimum_height=self.box_layout.setter('height'))
+
+    def on_data(self, instance, value):
+        for item in value:
+            self.box_layout.add_widget(TaskOverviewItem(**item, size_hint_y=None, height=60))
+        self.add_widget(self.box_layout)
 
     def on_time_scale(self, instance, value):
         for item in self.box_layout.children:
@@ -48,15 +62,9 @@ class TimelineScreen(Screen):
             data.append({'speed': item['expected_average_speed'],
                          'name': item['name'],
                          'days': int(round(item['remain'] / 24)) + 1,
-                         'current_days': int(round(item['remain'] / 24)) + 1,
                          'deadline': item['deadline'],
-                         'expected_time': item['expected_time'],
-                         'group': item['group'],
-                         'time_scale': 182,
-                         'current_deadline': item['deadline'],
-                         'slot_number': i})
+                         'group': item['group']})
         self.tasks.data = data
-        self.tasks.refresh_from_data()
 
 
 class TimeSlider(Slider):
@@ -83,7 +91,6 @@ class TimeSlider(Slider):
             self.value = self.max
             self.cursor_size = (0, 0)
         else:
-            self.value = self.days
             self.cursor_size = self.normal_cursor_size
         super(TimeSlider, self).on_max(instance, value)
 
@@ -109,15 +116,14 @@ class TimeSlider(Slider):
     def on_value(self, instance, value):
         if self.days < self.max:
             self.speed = self.days * self.expected_speed / (1e-6 + value)
+            try:
+                deadline = datetime.strptime(self.deadline, '%Y-%m-%d %H')
+                current_deadline = deadline + timedelta(days=(value - self.days))
+                self.deadline_label.text = current_deadline.strftime('%Y-%m-%d %H')
+            except ValueError:
+                pass
         else:
             self.speed = self.expected_speed
-
-        try:
-            deadline = datetime.strptime(self.deadline, '%Y-%m-%d %H')
-            current_deadline = deadline + timedelta(days=(value - self.days))
-            self.deadline_label.text = current_deadline.strftime('%Y-%m-%d %H')
-        except ValueError:
-            pass
 
 
 class ApplyDeadlineButton(Button):
