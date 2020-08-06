@@ -1,27 +1,27 @@
-#:import skill_info_screen source.skill_info_screen
-#:import skills_screen source.skills_screen
-<SkillInfoScreen>:
-    name: 'skill_info_screen'
+<TaskInfoScreen>:
+    name: 'task_info_screen'
     item_name: _item_name
     item_description: _item_description
     item_time: _item_time
+    item_group: _item_group
     unhide_button: _unhide_button
     hide_button: _hide_button
-    item_group: _item_group
     options: _options
     items_view: _items_view
     control_panel: _control_panel
+    deadline: _deadline
+    remains: _remains
+    expected_time: _expected_time
+    average_speed: _average_speed
     BoxLayout:
         orientation: 'vertical'
         BoxLayout:
             orientation: 'horizontal'
             size_hint: 1, 0.1
-            Button:
+            TaskBackButton:
+                screen_manager: root.manager
                 size_hint: 0.2, 1
                 text: "Back"
-                on_press:
-                    root.manager.current = "skills_screen"
-                    root.manager.skills_screen.refresh(root.item_group.text)
             Label:
                 id: _item_name
                 text: "Name"
@@ -30,15 +30,51 @@
                 text: "Total time"
             Label:
                 id: _item_group
-                text: "Total time"
+                text: "group"
         BoxLayout:
             orientation: 'horizontal'
             BoxLayout:
                 orientation: 'vertical'
+                BoxLayout:
+                    orientation: 'horizontal'
+                    BoxLayout:
+                        orientation: "horizontal"
+                        Label:
+                            size_hint: None, 1
+                            size: self.texture_size
+                            text: "Deadline:"
+                            halign: "right"
+                        DeadlineLabel:
+                            id: _deadline
+                            screen: root
+                    Label:
+                        id: _remains
+                        text: "Remains: "
+                BoxLayout:
+                    orientation: 'horizontal'
+                    BoxLayout:
+                        orientation: "horizontal"
+                        Label:
+                            size_hint: None, 1
+                            size: self.texture_size
+                            text: "Expected time:"
+                            halign: 'right'
+                        ExpectedTimeLabel:
+                            size_hint: 0.2, 1
+                            id: _expected_time
+                            screen: root
+                        Label:
+                            size_hint: None, 1
+                            size: self.texture_size
+                            text: "hours"
+                            halign: 'left'
+                    Label:
+                        id: _average_speed
+                        text: 'Average speed(expected)h/d: '
                 TextInput:
                     size_hint: 1, 6
                     id: _item_description
-                    text: "Notes"
+                    text: "Description"
                     text_size: self.size
                     halign: 'left'
                     valign: 'center'
@@ -50,8 +86,8 @@
                         add_time_amount: _add_time_amount
                     BoxLayout:
                         orientation: 'horizontal'
-                        AddSkillTimeButton:
-                            skill_info_screen: root
+                        AddTaskTimeButton:
+                            task_info_screen: root
                             screen_manager: root.manager
                             add_time_amount: _add_time_amount
                             timer: _timer
@@ -64,23 +100,23 @@
                             multiline: False
                 BoxLayout:
                     orientation: "horizontal"
-                    HideSkillButton:
+                    HideTaskButton:
                         id: _hide_button
-                        skill_info_screen: root
+                        task_info_screen: root
                         screen_manager: root.manager
-                        text: "Hide"
-                        on_press: self.hide_skill()
-                    UnhideSkillButton:
-                        skill_info_screen: root
+                        text: "Done"
+                        on_press: self.hide_task()
+                    UnhideTaskButton:
+                        task_info_screen: root
                         screen_manager: root.manager
                         id: _unhide_button
-                        text: "Unhide"
-                        on_press: self.unhide_skill()
-                    RemoveSkillButton:
-                        skill_info_screen: root
+                        text: "Duty"
+                        on_press: self.unhide_task()
+                    RemoveTaskButton:
+                        task_info_screen: root
                         screen_manager: root.manager
                         text: "Remove"
-                        on_press: self.remove_skill()
+                        on_press: self.remove_task()
             BoxLayout:
                 orientation: 'vertical'
                 Label:

@@ -1,13 +1,11 @@
-from kivy.uix.recycleview import RecycleView
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import Screen
 from kivy.uix.slider import Slider
 from kivy.properties import NumericProperty, ObjectProperty
-from source.widgets import byr_colormap, hsv_to_rgb
+from source.lib.widgets import byr_colormap, hsv_to_rgb
 from datetime import datetime, timedelta
 from kivy.uix.button import Button
 from kivy.uix.relativelayout import RelativeLayout
-from kivy.uix.floatlayout import FloatLayout
 from kivy.graphics import Line, Rectangle, Color
 from kivy.uix.label import Label
 from dateutil.relativedelta import relativedelta
@@ -104,7 +102,7 @@ class TimeSlider(Slider):
             self.cursor_size = (0, 0)
         elif value < self.min:
             self.value = self.min
-            self.cursor_image = "source/edit_cancel.png"
+            self.cursor_image = "source/res/edit_cancel.png"
         else:
             self.value = self.days
             self.cursor_size = self.normal_cursor_size

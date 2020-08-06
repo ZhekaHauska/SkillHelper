@@ -22,14 +22,19 @@ class Database:
         # settings
         self.sensitivity = 0.01
         # try to load database from disk
-        with open(f'{self.db_name}.yaml') as file:
+        try:
+            file = open(f'{self.db_name}.yaml', 'r')
             self.data = yaml.load(file, Loader=yaml.Loader)
-
-            # self.stats = self.data['stats']
-            try:
-                self.groups = [x['name'] for x in self.data['groups']]
-            except TypeError:
-                self.groups = list()
+            file.close()
+        except FileNotFoundError:
+            self.data = {'groups': [],
+                         'skills': {'hidden': [], 'items': []},
+                         'tasks': {'hidden': [], 'items': []}
+                         }
+        try:
+            self.groups = [x['name'] for x in self.data['groups']]
+        except TypeError:
+            self.groups = list()
 
         # try to load history
         try:
