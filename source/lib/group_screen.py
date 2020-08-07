@@ -1,5 +1,4 @@
 from kivy.uix.screenmanager import Screen
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.properties import ObjectProperty
@@ -7,18 +6,15 @@ from kivy.uix.label import Label
 
 
 class GroupScreen(Screen):
-    def __init__(self, **kwargs):
-        super(GroupScreen, self).__init__(**kwargs)
+    group_view = ObjectProperty()
 
     def on_pre_enter(self, *args):
         super(GroupScreen, self).on_pre_enter(*args)
-        try:
-            self.group_view.groups = self.manager.database.data['groups']
+        if self.group_view is not None:
             self.refresh()
-        except AttributeError:
-            pass
 
     def refresh(self):
+        self.group_view.groups = self.manager.database.data['groups']
         self.manager.database.refresh_stats()
         stats = self.manager.database.stats['total']
         total_speed = 0
@@ -56,15 +52,11 @@ class GroupView(GridLayout):
         self.buttons = list()
         self.labels = list()
 
-    def refresh(self):
-        for group, label in zip(self.groups, self.labels):
-            label.children[0].text = f"\nPriority: {round(group['priority'], 2)}"
-            label.children[1].text = f"Speed: {round(group['speed'], 2)} ({round(group['expected_speed'], 2)}) h/d"
+    def on_groups(self, *args):
+        self.refresh()
 
-    def on_groups(self, instance, value):
-        for button, label in zip(self.buttons, self.labels):
-            self.remove_widget(button)
-            self.remove_widget(label)
+    def refresh(self):
+        self.clear_widgets()
         self.buttons = list()
         self.labels = list()
 
@@ -80,17 +72,8 @@ class GroupView(GridLayout):
         for group in self.groups:
             text = [f"Priority: {round(group['priority'], 2)}",
                     f"Speed: {round(group['speed'], 2)} ({round(group['expected_speed'], 2)}) h/d"]
-            layout = BoxLayout(orientation='vertical', spacing=2)
+            label = Label(text=text[0] + '\n' + text[1])
 
-            label = Label(text=text[0], valign='center')
-            label.text_size = label.size
-            layout.add_widget(label)
+            self.labels.append(label)
+            self.add_widget(label)
 
-            label = Label(text=text[1], valign='center')
-            label.text_size = label.size
-            layout.add_widget(label)
-
-            self.labels.append(layout)
-            self.add_widget(layout)
-
-        self.group_screen.refresh()

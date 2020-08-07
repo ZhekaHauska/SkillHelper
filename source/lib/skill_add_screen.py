@@ -10,4 +10,5 @@ class AddSkillButton(Button):
                       "importance": 0}
 
         self.screen_manager.database.add_item(skill_data)
+        self.screen_manager.skills_screen.group = skill_data['group']
         self.screen_manager.current = 'skills_screen'

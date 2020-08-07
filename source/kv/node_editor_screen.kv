@@ -9,10 +9,14 @@
                 size_hint: (0.1, 1)
                 text: "Back"
                 on_press:
-                    root.save_layout()
-                    root.calculate_importance()
                     root.manager.current = "group_screen"
             Label:
+                id: _infoc
+            ApplyConnectionsButton:
+                info: _infoc
+                connections: root.__self__
+                size_hint: (0.1, 1)
+                text: "Apply"
         BoxLayout:
             size_hint: 1, 0.1
             Slider:

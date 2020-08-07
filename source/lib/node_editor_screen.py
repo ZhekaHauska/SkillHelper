@@ -3,6 +3,8 @@ from source.lib.widgets import NodeEditor
 import pickle
 from source.lib.widgets import Node, Connection
 import numpy as np
+from kivy.uix.button import Button
+from kivy.clock import Clock
 
 
 class NodeEditorScreen(Screen):
@@ -67,38 +69,42 @@ class NodeEditorScreen(Screen):
                 connection['direction'] = str(child.direction)
                 connections.append(connection)
 
-        with open("layout.pkl", 'wb') as file:
-            pickle.dump({'nodes': nodes, 'connections': connections}, file)
+        if (len(connections) > 0) and (len(nodes) > 1):
+            with open("layout.pkl", 'wb') as file:
+                pickle.dump({'nodes': nodes, 'connections': connections}, file)
 
     def calculate_importance(self):
         self.size_skills = len(self.manager.database.data['skills']['items'])
-        D = np.eye(self.size_skills)
-        d = np.eye(self.size_skills)
+        if (self.size_skills > 1) and (len(self.node_editor.children) > 1):
+            D = np.eye(self.size_skills)
+            d = np.eye(self.size_skills)
 
-        for child in self.node_editor.children:
-            if isinstance(child, Connection):
-                row = self.find_item(child.node1.group, child.node1.name)
-                col = self.find_item(child.node2.group, child.node2.name)
-                if child.direction != 1:
-                    D[row, col] = child.strength + 1
-                    if child.direction == 2:
-                        D[col, row] = child.strength + 1
-                else:
-                    D[col, row] = child.strength
+            for child in self.node_editor.children:
+                if isinstance(child, Connection):
+                    row = self.find_item(child.node1.group, child.node1.name)
+                    col = self.find_item(child.node2.group, child.node2.name)
+                    if child.direction != 1:
+                        D[row, col] = child.strength + 1
+                        if child.direction == 2:
+                            D[col, row] = child.strength + 1
+                    else:
+                        D[col, row] = child.strength
 
-        for row in range(0, D.shape[0]):
-            d[row, row] = self.importance(D, row)
+            for row in range(0, D.shape[0]):
+                d[row, row] = self.importance(D, row)
 
-        # normalize
-        d = d - d.min()
-        d /= d.max()
+            # normalize
+            d = d - d.min()
+            m = d.max()
+            if m > 0:
+                d /= m
 
-        for row in range(0, self.size_skills):
-            self.manager.database.data['skills']['items'][row]['importance'] = float(d[row, row])
+            for row in range(0, self.size_skills):
+                self.manager.database.data['skills']['items'][row]['importance'] = float(d[row, row])
 
-        self.manager.database.refresh_priority()
-        self.manager.database.sort_items()
-        self.manager.database.save()
+            self.manager.database.refresh_priority()
+            self.manager.database.sort_items()
+            self.manager.database.save()
 
     def find_item(self, group, name):
         for idx, x in enumerate(self.manager.database.data['skills']['items']):
@@ -122,3 +128,16 @@ class NodeEditorScreen(Screen):
                 if temp is not None:
                     D[col, row] = temp
         return value
+
+
+class ApplyConnectionsButton(Button):
+    def on_press(self, *args):
+        super(ApplyConnectionsButton, self).on_press(*args)
+        self.connections.calculate_importance()
+        self.connections.save_layout()
+
+        self.info.text = 'All connections have saved!'
+        Clock.schedule_once(self.clear_info, 5)
+
+    def clear_info(self, *args):
+        self.info.text = ""

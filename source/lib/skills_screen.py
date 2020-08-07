@@ -23,14 +23,12 @@ class SkillsScreen(Screen):
         else:
             if group is None:
                 items = self.manager.database.data['skills']['items']
+                self.manager.database.refresh_stats()
                 stats = self.manager.database.stats['total']
             else:
                 items = self.manager.database.get_items("skills", group)
-                try:
-                    stats = self.manager.database.stats[group]
-                except KeyError:
-                    self.manager.database.refresh_stats(group)
-                    stats = self.manager.database.stats[group]
+                self.manager.database.refresh_stats(group)
+                stats = self.manager.database.stats[group]
             self.stats.text = f"Today: {round(stats['today'], 2)} This week: {round(stats['week'], 2)}"
 
         self.items_view.data = items
