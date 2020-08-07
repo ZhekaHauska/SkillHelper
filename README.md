@@ -5,8 +5,8 @@
 
 # Установка
 ## Установка готовой сборки
-В [релизах](https://github.com/ZhekaHauska/SkillHelper/releases) можно найти свежие версии програмы для Windows и GNU/Linux. Для установки достаточно распаковать архив `SkillHelper-x.xx-your_os.tar.gz`. В папке `SkillHelper-x.xx-your_os` находится
-файл `SkillHelper`, который нужно сделать исполняемым и использовать для запуска программы.
+В [релизах](https://github.com/ZhekaHauska/SkillHelper/releases) можно найти свежие версии програмы для Windows и GNU/Linux. Для установки достаточно распаковать архив с именем `SkillHelper-x.xx-your_os`. В папке `SkillHelper-x.xx-your_os` должен находиться
+файл `SkillHelper`, который нужно использовать для запуска программы.
 
 **Замечание для пользователей GNU/Linux:** Для работы программы требуется `libс` версии не ниже **2.31**. Чтобы проверить версию `libc` введите в терминале `ldd --version`.
 
