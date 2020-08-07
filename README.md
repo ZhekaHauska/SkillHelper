@@ -16,3 +16,6 @@
 Ручную сборку рекоменуется проводить с помощью `pyinstaller`. Для этого сначала нужно создать окужение с необходимыми пакетами (полный список зависимостей можно найти в файле [`environment.yml`](https://github.com/ZhekaHauska/SkillHelper/blob/connections/environment.yml)), например, с помощью [Miniconda](https://docs.conda.io/en/latest/miniconda.html): `conda env create -f environment.yml`.
 
 Перед сборкой желательно проверить работоспособность программы, запустив [`main.py`](https://github.com/ZhekaHauska/SkillHelper/blob/connections/main.py) командой: `python main.py`. Далее, нужно отредактировать файл `main.spec`, заменив путь в 7-ой строке на путь к папке с файлом `main.spec`. Осуществить сборку, находясь в директории с `main.spec`, можно командой `pyinstaller main.spec`. Готовая сборка будет находится в папке `dist` этой же директории.
+
+# Известные проблемы
+Ввод полей не проверяется на корректность, то есть, если вы введёте букву там, где надо цифру или введёте дату не по формату, то программа без объяснения причин свалится. 
