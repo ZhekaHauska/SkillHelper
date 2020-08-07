@@ -9,13 +9,14 @@
     stats: _stats
     speed: _speed
     group_view: _group_view
+    schedule_info: _schedule_info
     BoxLayout:
         orientation: 'vertical'
         GroupView:
             id: _group_view
-            size_hint_y: 0.3
-        Label:
-            text: "Skill Helper"
+            size_hint_y: 0.4
+        ScheduleInfo:
+            id: _schedule_info
         SkillControlGroupPanel:
             screen_manager: root.manager
             size_hint: 1, 0.1
