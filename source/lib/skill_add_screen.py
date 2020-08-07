@@ -1,4 +1,10 @@
 from kivy.uix.button import Button
+from kivy.uix.screenmanager import Screen
+
+
+class AddSkillScreen(Screen):
+    def __init__(self, **kwargs):
+        super(AddSkillScreen, self).__init__(**kwargs)
 
 
 class AddSkillButton(Button):

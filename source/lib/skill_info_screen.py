@@ -6,8 +6,8 @@ from kivy.properties import ObjectProperty
 class SkillInfoScreen(Screen):
     item = ObjectProperty(allownone=True)
 
-    def __init__(self, **kw):
-        super(SkillInfoScreen, self).__init__(**kw)
+    def __init__(self, **kwargs):
+        super(SkillInfoScreen, self).__init__(**kwargs)
 
     def on_item(self, *args):
         if self.item is not None:

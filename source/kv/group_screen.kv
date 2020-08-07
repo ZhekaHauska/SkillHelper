@@ -1,20 +1,23 @@
+<GroupView>:
+    do_scroll_x: True
+    do_scroll_y: False
+
+<SkillControlGroupPanel>:
+
 <GroupScreen>:
     name: "group_screen"
-    stats: _stats.__self__
-    speed: _speed.__self__
-    group_view: _group_view.__self__
+    stats: _stats
+    speed: _speed
+    group_view: _group_view
     BoxLayout:
         orientation: 'vertical'
         GroupView:
             id: _group_view
-            screen_manager: root.manager.__self__
-            group_screen: root.__self__
-            groups: root.manager.database.data['groups']
-            spacing: 1
+            size_hint_y: 0.3
         Label:
             text: "Skill Helper"
         SkillControlGroupPanel:
-            screen_manager: root.manager.__self__
+            screen_manager: root.manager
             size_hint: 1, 0.1
         BoxLayout:
             orientation: "horizontal"

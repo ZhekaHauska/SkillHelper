@@ -16,9 +16,9 @@ from source.lib.skills_screen import *
 from source.lib.skills_view import *
 from source.lib.task_add_screen import *
 from source.lib.tasks_view import *
+from source.lib.tasks_screen import *
 
 Builder.load_file("source/kv/widgets.kv")
-Builder.load_file("source/kv/screen_manager.kv")
 Builder.load_file("source/kv/control_panel.kv")
 Builder.load_file("source/kv/group_screen.kv")
 
@@ -38,8 +38,35 @@ Builder.load_file("source/kv/timeline_screen.kv")
 
 class SkillHelperScreenManager(ScreenManager):
     def __init__(self, database, **kwargs):
-        self.database = database
         super(SkillHelperScreenManager, self).__init__(**kwargs)
+        self.database = database
+
+        self.group_screen = GroupScreen()
+        self.add_widget(self.group_screen)
+
+        self.skills_screen = SkillsScreen()
+        self.add_widget(self.skills_screen)
+
+        self.skill_info_screen = SkillInfoScreen()
+        self.add_widget(self.skill_info_screen)
+
+        self.add_skill_screen = AddSkillScreen()
+        self.add_widget(self.add_skill_screen)
+
+        self.tasks_screen = TasksScreen()
+        self.add_widget(self.tasks_screen)
+
+        self.task_info_screen = TaskInfoScreen()
+        self.add_widget(self.task_info_screen)
+
+        self.add_task_screen = AddTaskScreen()
+        self.add_widget(self.add_task_screen)
+
+        self.node_editor_screen = NodeEditorScreen()
+        self.add_widget(self.node_editor_screen)
+
+        self.timeline_screen = TimelineScreen()
+        self.add_widget(self.timeline_screen)
 
 
 class SkillHelperApp(App):

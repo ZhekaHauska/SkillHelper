@@ -46,6 +46,9 @@ class TasksOverview(ScrollView):
 
 
 class TimelineScreen(Screen):
+    def __init__(self, **kwargs):
+        super(TimelineScreen, self).__init__(**kwargs)
+
     def set_time_scale(self, *args):
         self.time_scale.value = 182
 

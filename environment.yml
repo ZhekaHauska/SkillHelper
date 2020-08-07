@@ -1,4 +1,4 @@
-name: skill_helper
+name: skill_helper_new
 channels:
   - conda-forge
   - https://conda.anaconda.org/conda-forge/
