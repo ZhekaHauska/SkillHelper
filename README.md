@@ -10,7 +10,7 @@
 
 **Замечание для пользователей GNU/Linux:** Для работы программы требуется `libс` версии не ниже **2.31**. Чтобы проверить версию `libc` введите в терминале `ldd --version`.
 
-**Замечение для пользователей Windows:** На данный момент поддерживается только Windows 10.
+**Замечание для пользователей Windows:** На данный момент поддерживается только Windows 10.
 
 ## Ручная сборка
 Ручную сборку рекоменуется проводить с помощью `pyinstaller`. Для этого сначала нужно создать окужение с необходимыми пакетами (полный список зависимостей можно найти в файле [`environment.yml`](https://github.com/ZhekaHauska/SkillHelper/blob/connections/environment.yml)), например, с помощью [Miniconda](https://docs.conda.io/en/latest/miniconda.html): `conda env create -f environment.yml`.
