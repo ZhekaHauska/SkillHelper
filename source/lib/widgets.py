@@ -18,6 +18,7 @@ from kivy.uix.recycleview import RecycleView
 from kivy.uix.button import Button
 import numpy as np
 import math
+from functools import partial
 
 
 def hsv_to_rgb(h, s, v):
@@ -149,6 +150,14 @@ class SHTextInput(TextInput):
         if self.collide_point(*touch.pos):
             self.select_all()
         return super(SHTextInput, self).on_touch_up(touch)
+
+    def warning_blink(self):
+        normal_color = self.background_color
+        self.background_color = (1, 0, 0, 1)
+        Clock.schedule_once(partial(self.set_background_color, color=normal_color), 0.5)
+
+    def set_background_color(self, *args, color):
+        self.background_color = color
 
 
 class Timer(BoxLayout):
