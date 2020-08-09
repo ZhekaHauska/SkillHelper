@@ -78,6 +78,9 @@ class TimeSlider(Slider):
 
     def __init__(self, **kwargs):
         super(TimeSlider, self).__init__(**kwargs)
+        self.current_value = 0
+        self.current_speed = 0
+
         self.expected_speed = 0
         self.deadline = ""
 
@@ -92,24 +95,31 @@ class TimeSlider(Slider):
         self.value_track_color = (0, 0, 1, 1)
 
     def on_max(self, instance, value):
-        if value < self.days:
+        if value < self.current_value:
             self.value = self.max
             self.cursor_size = (0, 0)
+            self.disabled = True
         else:
             self.cursor_size = self.normal_cursor_size
+            self.disabled = False
         super(TimeSlider, self).on_max(instance, value)
 
     def on_days(self, instance, value):
+        self.current_value = value
+        self.current_speed = self.expected_speed
         if value > self.max:
             self.value = self.max
             self.cursor_size = (0, 0)
+            self.disabled = True
         elif value < self.min:
             self.value = self.min
             self.cursor_image = "source/res/edit_cancel.png"
+            self.disabled = False
         else:
             self.value = self.days
             self.cursor_size = self.normal_cursor_size
             self.cursor_image = self.normal_cursor_image
+            self.disabled = False
 
     def on_speed(self, instance, value):
         if value > 4:
@@ -118,17 +128,22 @@ class TimeSlider(Slider):
             v = value/4
         self.value_track_color = *hsv_to_rgb(*byr_colormap(v)), 1
 
-    def on_value(self, instance, value):
-        if self.days < self.max:
-            self.speed = self.days * self.expected_speed / (1e-6 + value)
+    def on_touch_up(self, touch):
+        super(TimeSlider, self).on_touch_up(touch)
+        if self.collide_point(*touch.pos) and not self.disabled:
+            self.current_value = self.value
+            self.current_speed = self.speed
+
+    def on_touch_move(self, touch):
+        super(TimeSlider, self).on_touch_move(touch)
+        if self.collide_point(*touch.pos) and not self.disabled:
+            self.speed = self.days * self.expected_speed / (1e-6 + self.value)
             try:
                 deadline = datetime.strptime(self.deadline, '%Y-%m-%d %H')
-                current_deadline = deadline + timedelta(days=(value - self.days))
+                current_deadline = deadline + timedelta(days=(self.value - self.days))
                 self.deadline_label.text = current_deadline.strftime('%Y-%m-%d %H')
             except ValueError:
                 pass
-        else:
-            self.speed = self.expected_speed
 
 
 class ApplyDeadlineButton(Button):
