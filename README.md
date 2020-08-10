@@ -1,4 +1,4 @@
-![skill_helper](log_for_github.png)
+![skill_helper](logo_for_github.png)
 # Skill Helper
 Интерактивные заметки для долгосрочного планирования.
 
