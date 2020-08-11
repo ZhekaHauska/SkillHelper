@@ -93,10 +93,9 @@
                             timer: _timer
                             text: "Add time"
                             on_press: self.add_time()
-                        TextInput:
+                        SHTextInput:
                             id: _add_time_amount
                             text: "hours"
-                            on_focus: self.text=""
                             multiline: False
                 BoxLayout:
                     orientation: "horizontal"

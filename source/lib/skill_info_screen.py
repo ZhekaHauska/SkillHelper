@@ -56,11 +56,22 @@ class SkillInfoScreen(Screen):
 
 class AddSkillTimeButton(Button):
     def add_time(self):
-        self.screen_manager.database.add_time(self.screen_manager.skill_info_screen.item_group.text,
-                                              self.screen_manager.skill_info_screen.item_name.text,
-                                              float(self.add_time_amount.text))
-        new_time = float(self.screen_manager.skill_info_screen.item_time.text) + float(self.add_time_amount.text)
-        self.screen_manager.skill_info_screen.item_time.text = str(round(new_time, 2))
+        success = True
+        try:
+            dt = float(self.add_time_amount.text)
+        except ValueError:
+            dt = 0
+            success = False
+
+        if success:
+            self.screen_manager.database.add_time(self.screen_manager.skill_info_screen.item_group.text,
+                                                  self.screen_manager.skill_info_screen.item_name.text,
+                                                  dt)
+            new_time = float(self.screen_manager.skill_info_screen.item_time.text) + dt
+            self.screen_manager.skill_info_screen.item_time.text = str(round(new_time, 2))
+        else:
+            self.add_time_amount.text = '0'
+            self.add_time_amount.warning_blink()
 
 
 class RemoveSkillButton(Button):

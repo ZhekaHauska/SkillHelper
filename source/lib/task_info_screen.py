@@ -82,12 +82,23 @@ class TaskInfoScreen(Screen):
 
 class AddTaskTimeButton(Button):
     def add_time(self):
-        self.screen_manager.database.add_time(self.screen_manager.task_info_screen.item['group'],
-                                              self.screen_manager.task_info_screen.item['name'],
-                                              float(self.add_time_amount.text))
-        new_time = float(self.screen_manager.task_info_screen.item_time.text) + float(self.add_time_amount.text)
-        self.screen_manager.group_screen.refresh()
-        self.screen_manager.task_info_screen.refresh()
+        success = True
+        try:
+            dt = float(self.add_time_amount.text)
+        except ValueError:
+            dt = 0
+            success = False
+
+        if success:
+            self.screen_manager.database.add_time(self.screen_manager.task_info_screen.item['group'],
+                                                  self.screen_manager.task_info_screen.item['name'],
+                                                  dt)
+            new_time = float(self.screen_manager.task_info_screen.item_time.text) + dt
+            self.screen_manager.group_screen.refresh()
+            self.screen_manager.task_info_screen.refresh()
+        else:
+            self.add_time_amount.text = '0'
+            self.add_time_amount.warning_blink()
 
 
 class RemoveTaskButton(Button):
