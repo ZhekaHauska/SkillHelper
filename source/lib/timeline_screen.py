@@ -94,6 +94,8 @@ class TimeSlider(Slider):
         self.value_track = True
         self.value_track_color = (0, 0, 1, 1)
 
+        self.active = False
+
     def on_max(self, instance, value):
         if value < self.current_value:
             self.value = self.max
@@ -130,13 +132,21 @@ class TimeSlider(Slider):
 
     def on_touch_up(self, touch):
         super(TimeSlider, self).on_touch_up(touch)
-        if self.collide_point(*touch.pos) and not self.disabled:
+        if self.active and not self.disabled:
             self.current_value = self.value
             self.current_speed = self.speed
+            self.active = False
+
+    def on_touch_down(self, touch):
+        super(TimeSlider, self).on_touch_down(touch)
+        if self.collide_point(*touch.pos) and not self.disabled:
+            self.active = True
+            if self.value != self.current_value:
+                self.speed = self.days * self.expected_speed / (1e-6 + self.value)
 
     def on_touch_move(self, touch):
         super(TimeSlider, self).on_touch_move(touch)
-        if self.collide_point(*touch.pos) and not self.disabled:
+        if self.active and not self.disabled:
             self.speed = self.days * self.expected_speed / (1e-6 + self.value)
             try:
                 deadline = datetime.strptime(self.deadline, '%Y-%m-%d %H')
@@ -234,12 +244,12 @@ class LoadDisplay(RelativeLayout):
             with self.canvas:
                 x = disp
                 day = 1
-                while x <= length + disp:
+                while (x + dt/2) < (length + disp):
                     load = 0
                     for item in self.tasks.box_layout.children:
                         if item.slider.value >= day:
-                            load += item.speed
-                    if load > 12:
+                            load += item.slider.speed
+                    if load >= 12:
                         v = 1
                     else:
                         v = load / 12
