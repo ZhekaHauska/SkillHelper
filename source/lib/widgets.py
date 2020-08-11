@@ -19,6 +19,7 @@ from kivy.uix.button import Button
 import numpy as np
 import math
 from functools import partial
+from datetime import datetime
 
 
 def hsv_to_rgb(h, s, v):
@@ -492,6 +493,7 @@ class EditableLabel(RelativeLayout):
         self.label = Label()
         self.input = None
         self.screen = None
+        self.state = "label"  # {'label', 'input'}
         super(EditableLabel, self).__init__(**kwargs)
 
         self.add_widget(self.label)
@@ -504,22 +506,30 @@ class EditableLabel(RelativeLayout):
         self.text = self.input.text
         self.remove_widget(self.input)
         self.add_widget(self.label)
+        self.state = 'label'
 
     def cancel(self, instance, value):
-        if not value:
+        if not value and instance.success:
             self.remove_widget(self.children[0])
             self.add_widget(self.label)
+            self.state = 'label'
+        elif not value and not instance.success:
+            self.input.text = self.text
+            self.input.focus = not self.input.focus
+            self.input.success = True
 
     def focus(self, *args):
         self.children[0].focus = True
 
     def on_touch_down(self, touch):
         if touch.is_double_tap:
-            if self.collide_point(*touch.pos):
+            if self.collide_point(*touch.pos) and (self.state == 'label'):
                 self.input = TextInput(text=self.text, multiline=False, halign='center',
                                        valign='center')
                 self.input.bind(on_text_validate=self.apply)
                 self.input.bind(focus=self.cancel)
+                self.input.success = True
+                self.state = 'input'
 
                 self.remove_widget(self.label)
 
@@ -528,14 +538,43 @@ class EditableLabel(RelativeLayout):
 
         super(EditableLabel, self).on_touch_down(touch)
 
+    def warning_blink(self):
+        normal_color = self.input.background_color
+        self.input.background_color = (1, 0, 0, 1)
+        Clock.schedule_once(partial(self.set_background_color, color=normal_color), 0.5)
+
+    def set_background_color(self, *args, color):
+        self.input.background_color = color
+
 
 class DeadlineLabel(EditableLabel):
     def apply(self, *args):
-        super(DeadlineLabel, self).apply(*args)
-        self.screen.save({'deadline': self.text})
+        self.input.success = True
+        try:
+            datetime.strptime(self.input.text, '%Y-%m-%d %H')
+        except ValueError:
+            self.input.success = False
+
+        if self.input.success:
+            super(DeadlineLabel, self).apply(*args)
+            self.screen.save({'deadline': self.text})
+        else:
+            self.warning_blink()
+            return True
 
 
 class ExpectedTimeLabel(EditableLabel):
     def apply(self, *args):
-        super(ExpectedTimeLabel, self).apply(*args)
-        self.screen.save({'expected_time': float(self.text)})
+        self.input.success = True
+        try:
+            exp_time = float(self.input.text)
+        except ValueError:
+            self.input.success = False
+            exp_time = 0
+
+        if self.input.success:
+            super(ExpectedTimeLabel, self).apply(*args)
+            self.screen.save({'expected_time': exp_time})
+        else:
+            self.warning_blink()
+            return True
