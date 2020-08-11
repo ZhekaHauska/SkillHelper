@@ -102,6 +102,7 @@ class TimeSlider(Slider):
             self.cursor_size = (0, 0)
             self.disabled = True
         else:
+            self.value = self.current_value
             self.cursor_size = self.normal_cursor_size
             self.disabled = False
         super(TimeSlider, self).on_max(instance, value)
