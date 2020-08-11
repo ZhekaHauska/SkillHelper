@@ -25,12 +25,18 @@
             Label:
                 id: _item_name
                 text: "Name"
+                text_size: self.size
+                halign: 'center'
+                valign: 'center'
             Label:
                 id: _item_time
                 text: "Total time"
             Label:
                 id: _item_group
                 text: "group"
+                text_size: self.size
+                halign: 'center'
+                valign: 'center'
         BoxLayout:
             orientation: 'horizontal'
             BoxLayout:
@@ -97,6 +103,8 @@
                             id: _add_time_amount
                             text: "hours"
                             multiline: False
+                            valign: 'center'
+                            halign: 'center'
                 BoxLayout:
                     orientation: "horizontal"
                     HideTaskButton:
@@ -120,7 +128,8 @@
                 orientation: 'vertical'
                 Label:
                     size_hint: 1, 0.1
-                    text: "Задачи"
+                    text: "[u]Tasks[/u]"
+                    markup: True
                 TasksView:
                     id: _items_view
                     screen_manager: root.manager
