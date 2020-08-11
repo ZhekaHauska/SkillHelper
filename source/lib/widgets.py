@@ -167,9 +167,12 @@ class Timer(BoxLayout):
         self.state = "off"
 
     def start(self):
-        self.time = 0
-        self.state = "on"
-        Clock.schedule_interval(self.refresh_timer, 1)
+        if self.state == "off":
+            self.time = 0
+            self.state = "on"
+            Clock.schedule_interval(self.refresh_timer, 1)
+        elif self.state == "pause":
+            self.state = "on"
 
     def refresh_timer(self, dt):
         if self.state == "on":
@@ -178,8 +181,16 @@ class Timer(BoxLayout):
                                                     (self.time % 3600) // 60,
                                                      self.time % 60)
         elif self.state == "pause":
-            pass
+            if self.timer.text != '':
+                self.timer.text = ''
+            else:
+                self.timer.text = "{} : {} : {}".format(self.time // 3600,
+                                                        (self.time % 3600) // 60,
+                                                        self.time % 60)
         else:
+            self.timer.text = "{} : {} : {}".format(self.time // 3600,
+                                                    (self.time % 3600) // 60,
+                                                    self.time % 60)
             return False
 
     def finish(self):
