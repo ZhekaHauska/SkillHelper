@@ -18,10 +18,14 @@ class TaskInfoScreen(Screen):
             self.options.disabled = True
             self.unhide_button.disabled = False
             self.hide_button.disabled = True
+            self.control_panel.disabled = True
+            self.items_view.disabled = True
         else:
             self.options.disabled = False
             self.unhide_button.disabled = True
             self.hide_button.disabled = False
+            self.control_panel.disabled = False
+            self.items_view.disabled = False
 
         self.item_name.text = self.item['name']
         self.item_description.text = self.item['description']
@@ -37,7 +41,7 @@ class TaskInfoScreen(Screen):
         else:
             self.average_speed.color = (0, 0, 1, 1)
 
-        self.refresh_tasks(self.item['group'] + "/" + self.item['name'])
+        self.refresh_tasks(self.item['group'] + "/" + self.item['name'], self.item['hidden'])
 
         self.manager.add_task_screen.parent_group = self.item['group']
         self.manager.add_task_screen.parent_name = self.item['name']
