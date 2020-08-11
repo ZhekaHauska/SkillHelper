@@ -10,12 +10,13 @@ class AddTaskScreen(Screen):
         self.parent_name = None
 
     def back(self):
-        if len(self.parent_group.split('/')) > 2:
+        if len(self.parent_group.split('/')) > 1:
             screen_name = "task_info_screen"
         else:
             screen_name = "skill_info_screen"
 
         self.manager.current = screen_name
+        self.manager.current_screen.item = self.manager.database.find_item(self.parent_group, self.parent_name)
 
 
 class AddTaskButton(Button):
@@ -69,12 +70,5 @@ class AddTaskButton(Button):
                          "started": datetime.today().strftime("%Y-%m-%d %H")}
 
             self.screen_manager.database.add_item(task_data)
-            if len(self.screen_manager.add_task_screen.parent_group.split('/')) > 2:
-                screen_name = "task_info_screen"
-            else:
-                screen_name = "skill_info_screen"
-
-            self.screen_manager.current = screen_name
-
             self.screen_manager.add_task_screen.back()
 
