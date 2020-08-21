@@ -81,7 +81,6 @@ class TaskInfoScreen(Screen):
         self.manager.database.edit_item(self.item['group'], self.item['name'],
                                         data,
                                         self.item['hidden'])
-        self.refresh()
 
 
 class AddTaskTimeButton(Button):
