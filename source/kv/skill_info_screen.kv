@@ -39,13 +39,11 @@
             orientation: 'horizontal'
             BoxLayout:
                 orientation: 'vertical'
-                TextInput:
+                DescriptionNote:
                     size_hint: 1, 6
                     id: _item_description
-                    text: "Notes"
-                    text_size: self.size
-                    halign: 'left'
-                    valign: 'center'
+                    text: "Description"
+                    screen: root
                 BoxLayout:
                     id: _options
                     orientation: 'horizontal'

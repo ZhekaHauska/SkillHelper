@@ -4,7 +4,7 @@ from kivy.uix.textinput import TextInput
 from kivy.clock import Clock
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.floatlayout import FloatLayout
-from kivy.properties import ObjectProperty, NumericProperty
+from kivy.properties import ObjectProperty, NumericProperty, StringProperty
 from kivy.uix.slider import Slider
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.behaviors import ButtonBehavior
@@ -578,3 +578,34 @@ class ExpectedTimeLabel(EditableLabel):
         else:
             self.warning_blink()
             return True
+
+
+class DescriptionNote(RelativeLayout):
+    text = StringProperty()
+
+    def __init__(self, **kwargs):
+        super(DescriptionNote, self).__init__(**kwargs)
+        self.screen = None
+        self.input = TextInput()
+        self.input.bind(focus=self.on_focus)
+        self.add_widget(self.input)
+
+        self.button = Button(text="Apply", size_hint=(0.1, 0.1))
+        self.button.bind(on_press=self.on_press)
+
+    def on_focus(self, instance, value):
+        if value:
+            self.add_widget(self.button)
+        else:
+            self.remove_widget(self.button)
+            self.input.text = self.text
+
+    def on_press(self, *args):
+        self.remove_widget(self.button)
+        if self.screen is not None:
+            self.text = self.input.text
+            self.screen.save({'description': self.input.text})
+
+    def on_text(self, instance, value):
+        self.input.text = value
+

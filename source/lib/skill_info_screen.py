@@ -51,11 +51,10 @@ class SkillInfoScreen(Screen):
         if self.item is not None:
             self.refresh()
 
-    def on_leave(self, *args):
-        super(SkillInfoScreen, self).on_leave(*args)
-        if self.item is not None:
-            self.manager.database.edit_item(self.item['group'], self.item['name'],
-                                            {'description': self.item_description.text}, self.item['hidden'])
+    def save(self, data):
+        self.manager.database.edit_item(self.item['group'], self.item['name'],
+                                        data,
+                                        self.item['hidden'])
 
 
 class AddSkillTimeButton(Button):

@@ -77,13 +77,11 @@
                     Label:
                         id: _average_speed
                         text: 'Average speed(expected)h/d: '
-                TextInput:
+                DescriptionNote:
                     size_hint: 1, 6
                     id: _item_description
                     text: "Description"
-                    text_size: self.size
-                    halign: 'left'
-                    valign: 'center'
+                    screen: root
                 BoxLayout:
                     id: _options
                     orientation: 'horizontal'

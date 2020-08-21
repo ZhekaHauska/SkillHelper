@@ -59,11 +59,6 @@ class TaskInfoScreen(Screen):
         super(TaskInfoScreen, self).on_enter(*args)
         if self.item is not None:
             self.refresh()
-
-    def on_leave(self, *args):
-        super(TaskInfoScreen, self).on_leave(*args)
-        if self.item is not None:
-            self.save({'description': self.item_description.text})
     
     def back(self):
         item_name = self.item_group.text.split("/")
