@@ -72,6 +72,9 @@ class SkillHelperScreenManager(ScreenManager):
 class SkillHelperApp(App):
     def build(self):
         # link database and interface
+        self.icon = 'source/res/logo.svg'
+        self.title = "Skill Helper"
+
         db = Database("hauska")
         sm = SkillHelperScreenManager(db, transition=NoTransition())
 
@@ -80,4 +83,5 @@ class SkillHelperApp(App):
 
 
 if __name__ == '__main__':
-    SkillHelperApp().run()
+    sk = SkillHelperApp()
+    sk.run()
