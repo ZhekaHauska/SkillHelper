@@ -7,7 +7,7 @@ class AddSkillScreen(Screen):
         super(AddSkillScreen, self).__init__(**kwargs)
 
 
-class AddSkillButton(Button):
+class ApplySkillInfoButton(Button):
     def add_skill(self):
         check_fails = False
 

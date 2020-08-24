@@ -1,6 +1,6 @@
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.togglebutton import ToggleButton
-
+from kivy.uix.boxlayout import BoxLayout
 
 class SkillControlPanel(AnchorLayout):
     pass
@@ -10,7 +10,7 @@ class SkillControlGroupPanel(AnchorLayout):
     pass
 
 
-class TaskControlPanel(AnchorLayout):
+class TaskControlPanel(BoxLayout):
     pass
 
 

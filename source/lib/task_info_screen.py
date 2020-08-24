@@ -1,6 +1,8 @@
 from kivy.uix.screenmanager import Screen
 from kivy.uix.button import Button
 from kivy.properties import ObjectProperty
+from kivy.clock import Clock
+from functools import partial
 
 
 class TaskInfoScreen(Screen):
@@ -13,17 +15,19 @@ class TaskInfoScreen(Screen):
         if self.item is not None:
             self.refresh()
 
-    def refresh(self):
+    def refresh(self, *args):
         if self.item['hidden']:
-            self.options.disabled = True
-            self.unhide_button.disabled = False
-            self.hide_button.disabled = True
+            self.hide_button.background_normal = 'source/res/cancel.png'
+            self.hide_button.background_down = 'source/res/cancel_active.png'
+            self.timer.disabled = True
+            self.add_time.disabled = True
             self.control_panel.disabled = True
             self.items_view.disabled = True
         else:
-            self.options.disabled = False
-            self.unhide_button.disabled = True
-            self.hide_button.disabled = False
+            self.hide_button.background_normal = 'source/res/apply.png'
+            self.hide_button.background_down = 'source/res/apply_active.png'
+            self.timer.disabled = False
+            self.add_time.disabled = False
             self.control_panel.disabled = False
             self.items_view.disabled = False
 
@@ -33,13 +37,17 @@ class TaskInfoScreen(Screen):
         self.item_group.text = self.item['group']
         self.deadline.text = self.item['deadline']
         self.expected_time.text = str(round(self.item['expected_time']))
-        self.remains.text = f"Remain: {round(self.item['remain'], 2)} hours"
+        self.remains.text = f"[b]Left[/b]: {round(self.item['remain'], 2)} hours"
+        # stats
+        stats = self.manager.database.refresh_stats(self.item['group'], self.item['name'])
+        self.stats.text = f"""Total time for two weeks: {round(self.item['time2w'], 2)}    This week: {round(stats['week'], 2)}    Today: {round(stats['today'], 2)}"""
 
-        self.average_speed.text = f"Speed: {round(self.item['average_speed'], 2)} ({round(self.item['expected_average_speed'], 2)}) h/d"
         if round(self.item['average_speed'], 2) < round(self.item['expected_average_speed'], 2):
-            self.average_speed.color = (1, 0, 0, 1)
+            color = '#ff3c3c'
         else:
-            self.average_speed.color = (0, 0, 1, 1)
+            color = '#5442ff'
+
+        self.average_speed.text = f"[b]Speed[/b]: [color={color}]{round(self.item['average_speed'], 2)} ({round(self.item['expected_average_speed'], 2)})[/color] h/d"
 
         self.refresh_tasks(self.item['group'] + "/" + self.item['name'], self.item['hidden'])
 
@@ -93,7 +101,10 @@ class AddTaskTimeButton(Button):
                                                   dt)
             new_time = float(self.screen_manager.task_info_screen.item_time.text) + dt
             self.screen_manager.group_screen.refresh()
-            self.screen_manager.task_info_screen.refresh()
+
+            self.screen_manager.task_info_screen.item_time.text += f" + {round(dt, 2)}"
+            self.add_time_amount.text = '0'
+            Clock.schedule_once(self.screen_manager.task_info_screen.refresh, 3)
         else:
             self.add_time_amount.text = '0'
             self.add_time_amount.warning_blink()
@@ -110,18 +121,16 @@ class RemoveTaskButton(Button):
 
 class HideTaskButton(Button):
     def hide_task(self):
-        item = self.screen_manager.database.hide_item(self.task_info_screen.item_group.text,
-                                                      self.task_info_screen.item_name.text)
-        self.screen_manager.task_info_screen.item = item
-        self.screen_manager.task_info_screen.refresh()
-
-
-class UnhideTaskButton(Button):
-    def unhide_task(self):
-        item = self.screen_manager.database.unhide_item(self.task_info_screen.item_group.text,
-                                                        self.task_info_screen.item_name.text)
-        self.screen_manager.task_info_screen.item = item
-        self.screen_manager.task_info_screen.refresh()
+        if self.screen_manager.task_info_screen.item['hidden']:
+            item = self.screen_manager.database.unhide_item(self.task_info_screen.item_group.text,
+                                                            self.task_info_screen.item_name.text)
+            self.screen_manager.task_info_screen.item = item
+            self.screen_manager.task_info_screen.refresh()
+        else:
+            item = self.screen_manager.database.hide_item(self.task_info_screen.item_group.text,
+                                                          self.task_info_screen.item_name.text)
+            self.screen_manager.task_info_screen.item = item
+            self.screen_manager.task_info_screen.refresh()
 
 
 class TaskBackButton(Button):

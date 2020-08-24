@@ -1,27 +1,35 @@
+<TaskBackButton>:
+    size_hint: (None, 1)
+    width: self.height
+    background_normal: 'source/res/back.png'
+    background_down: 'source/res/back_active.png'
+    border: (0, 0, 0, 0)
+
 <TaskInfoScreen>:
     name: 'task_info_screen'
     item_name: _item_name
     item_description: _item_description
     item_time: _item_time
     item_group: _item_group
-    unhide_button: _unhide_button
     hide_button: _hide_button
-    options: _options
+    add_time: _add_time
+    timer: _timer
     items_view: _items_view
     control_panel: _control_panel
     deadline: _deadline
     remains: _remains
     expected_time: _expected_time
     average_speed: _average_speed
+    stats: _stats
     BoxLayout:
         orientation: 'vertical'
+        spacing: 16
         BoxLayout:
             orientation: 'horizontal'
-            size_hint: 1, 0.1
+            size_hint: 1, 0.2
+            spacing: 5
             TaskBackButton:
                 screen_manager: root.manager
-                size_hint: 0.2, 1
-                text: "Back"
             Label:
                 id: _item_name
                 text: "Name"
@@ -29,6 +37,7 @@
                 halign: 'center'
                 valign: 'center'
             Label:
+                size_hint_x: 0.5
                 id: _item_time
                 text: "Total time"
             Label:
@@ -38,33 +47,41 @@
                 halign: 'center'
                 valign: 'center'
         BoxLayout:
+            # info and tasks view
             orientation: 'horizontal'
+            size_hint_y: 1.2
+            spacing: 16
             BoxLayout:
                 orientation: 'vertical'
                 BoxLayout:
+                    size_hint_y: 0.1
                     orientation: 'horizontal'
                     BoxLayout:
                         orientation: "horizontal"
                         Label:
                             size_hint: None, 1
                             size: self.texture_size
-                            text: "Deadline:"
+                            text: "[b]Deadline[/b]:"
                             halign: "right"
+                            markup: True
                         DeadlineLabel:
                             id: _deadline
                             screen: root
                     Label:
                         id: _remains
-                        text: "Remains: "
+                        text: "[b]Remains:[/b]"
+                        markup: True
                 BoxLayout:
+                    size_hint_y: 0.1
                     orientation: 'horizontal'
                     BoxLayout:
                         orientation: "horizontal"
                         Label:
                             size_hint: None, 1
                             size: self.texture_size
-                            text: "Expected time:"
+                            text: "[b]Expected time:[/b]"
                             halign: 'right'
+                            markup: True
                         ExpectedTimeLabel:
                             size_hint: 0.2, 1
                             id: _expected_time
@@ -77,61 +94,84 @@
                     Label:
                         id: _average_speed
                         text: 'Average speed(expected)h/d: '
+                        markup: True
                 DescriptionNote:
-                    size_hint: 1, 6
+                    size_hint: 1, 0.8
                     id: _item_description
                     text: "Description"
                     screen: root
-                BoxLayout:
-                    id: _options
-                    orientation: 'horizontal'
-                    Timer:
-                        id: _timer
-                        add_time_amount: _add_time_amount
-                    BoxLayout:
-                        orientation: 'horizontal'
-                        AddTaskTimeButton:
-                            task_info_screen: root
-                            screen_manager: root.manager
-                            add_time_amount: _add_time_amount
-                            timer: _timer
-                            text: "Add time"
-                            on_press: self.add_time()
-                        SHTextInput:
-                            id: _add_time_amount
-                            text: "hours"
-                            multiline: False
-                            valign: 'center'
-                            halign: 'center'
-                BoxLayout:
-                    orientation: "horizontal"
-                    HideTaskButton:
-                        id: _hide_button
-                        task_info_screen: root
-                        screen_manager: root.manager
-                        text: "Done"
-                        on_press: self.hide_task()
-                    UnhideTaskButton:
-                        task_info_screen: root
-                        screen_manager: root.manager
-                        id: _unhide_button
-                        text: "Duty"
-                        on_press: self.unhide_task()
-                    RemoveTaskButton:
-                        task_info_screen: root
-                        screen_manager: root.manager
-                        text: "Remove"
-                        on_press: self.remove_task()
             BoxLayout:
                 orientation: 'vertical'
                 Label:
                     size_hint: 1, 0.1
-                    text: "[u]Tasks[/u]"
+                    text: "[b]Tasks[/b]"
                     markup: True
                 TasksView:
                     id: _items_view
                     screen_manager: root.manager
-                TaskControlPanel:
-                    id: _control_panel
-                    size_hint: 1, 0.1
-                    screen_manager: root.manager
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: 0.2
+            spacing: 16
+            RemoveTaskButton:
+                task_info_screen: root
+                screen_manager: root.manager
+                on_press: self.remove_task()
+            HideTaskButton:
+                id: _hide_button
+                task_info_screen: root
+                screen_manager: root.manager
+                on_press: self.hide_task()
+            BoxLayout:
+                orientation: 'vertical'
+                Label:
+                    text: '[b]Time[/b]'
+                    markup: True
+                SHTextInput:
+                    width: self.height
+                    id: _add_time_amount
+                    multiline: False
+                    valign: 'center'
+                    halign: 'center'
+                    text: "0"
+                    background_color: (0, 0, 0, 0)
+                    foreground_color: (1, 1, 1, 1)
+            AddTaskTimeButton:
+                id: _add_time
+                task_info_screen: root
+                screen_manager: root.manager
+                add_time_amount: _add_time_amount
+                timer: _timer
+                on_press: self.add_time()
+            Timer:
+                id: _timer
+                add_time_amount: _add_time_amount
+            TaskControlPanel:
+                id: _control_panel
+                screen_manager: root.manager
+            Label:
+        Label:
+            size_hint_y: 0.05
+            id: _stats
+            text: 'total'
+
+<AddTaskTimeButton>:
+    size_hint: (None, 1)
+    width: self.height
+    background_normal: 'source/res/add_time.png'
+    background_down: 'source/res/add_time_active.png'
+    border: (0, 0, 0, 0)
+
+<HideTaskButton>:
+    size_hint: (None, 1)
+    width: self.height
+    background_normal: 'source/res/hide.png'
+    background_down: 'source/res/hide_active.png'
+    border: (0, 0, 0, 0)
+    
+<RemoveTaskButton>:
+    size_hint: (None, 1)
+    width: self.height
+    background_normal: 'source/res/delete.png'
+    background_down: 'source/res/delete_active.png'
+    border: (0, 0, 0, 0)

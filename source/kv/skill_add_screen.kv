@@ -6,27 +6,20 @@
     skill_group: _group
     BoxLayout:
         orientation: 'vertical'
-        BoxLayout:
-            orientation: 'horizontal'
-            size_hint: 1, 0.3
-            Button:
-                size_hint: 0.1, 1
-                text: "Back"
-                on_press: root.manager.current = "group_screen"
-            SHTextInput:
-                id: _skill_name
-                text: "Skill name"
-                multiline: False
         SHTextInput:
-            size_hint: 1, 3
+            size_hint: 1, 0.2
+            id: _skill_name
+            text: "Skill name"
+            multiline: False
+        SHTextInput:
             id: _skill_description
             text: "Description"
         BoxLayout
+            size_hint_y: 0.2
             orientation: "horizontal"
             BoxLayout:
-                orientation: "vertical"
                 Label:
-                    text: "Start time"
+                    text: "Start time:"
                 SHTextInput:
                     id: _skill_time
                     text: "0"
@@ -34,16 +27,27 @@
             BoxLayout:
                 orientation: "vertical"
                 Label:
-                    text: "Group"
+                    text: "Group:"
                 SHTextInput:
                     id: _group
                     text: ""
                     multiline: False
-        AddSkillButton:
-            screen_manager: root.manager
-            skill_name: _skill_name
-            skill_description: _skill_description
-            skill_time: _skill_time
-            skill_group: _group
-            text: "Add"
-            on_press: self.add_skill()
+        BoxLayout:
+            size_hint_y: 0.2
+            BackButton:
+                on_press: root.manager.current = "group_screen"
+            Label:
+            ApplySkillInfoButton:
+                screen_manager: root.manager
+                skill_name: _skill_name
+                skill_description: _skill_description
+                skill_time: _skill_time
+                skill_group: _group
+                on_press: self.add_skill()
+
+<ApplySkillInfoButton>:
+    size_hint_x: None
+    width: self.height
+    background_normal: 'source/res/apply.png'
+    background_down: 'source/res/apply_active.png'
+    border: (0, 0, 0, 0)

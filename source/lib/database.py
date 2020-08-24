@@ -64,11 +64,14 @@ class Database:
                 self.data['groups'].append({'name': x, 'priority': 0.0})
         self.groups = list(groups)
 
-    def refresh_stats(self, group=None):
+    def refresh_stats(self, group=None, name=None):
         today = time.localtime()
 
         if group is not None:
-            history = self.history[self.history.group.str.contains(group)]
+            if name is None:
+                history = self.history[self.history.group.str.contains(group)]
+            else:
+                history = self.history[self.history.group.str.contains(group) & self.history.name.str.contains(name)]
         else:
             history = self.history
 
@@ -90,9 +93,12 @@ class Database:
             week_summary = 0.0
 
         if group is not None:
-            self.stats[group] = {'today': today_summary, 'week': week_summary}
+            if name is None:
+                self.stats[group] = {'today': today_summary, 'week': week_summary}
         else:
             self.stats['total'] = {'today': today_summary, 'week': week_summary}
+
+        return {'today': today_summary, 'week': week_summary}
 
     # edit data
     def add_item(self, item):

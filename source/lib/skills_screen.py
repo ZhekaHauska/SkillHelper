@@ -14,6 +14,9 @@ class SkillsScreen(Screen):
 
     def refresh(self, group=None, hidden=False):
         self.group = group
+        if group is not None:
+            self.group_name = group
+
         self.hidden = hidden
         if hidden:
             if group is None:

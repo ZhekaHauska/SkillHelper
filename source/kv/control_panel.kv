@@ -1,50 +1,85 @@
+<AddSkillButton@Button>:
+    size_hint: (None, 1)
+    width: self.height
+    background_normal: 'source/res/plus_button.png'
+    background_down: 'source/res/plus_button_active.png'
+    border: (0, 0, 0, 0)
+
+<ShowAllButton@Button>:
+    size_hint: (None, 1)
+    width: self.height
+    background_normal: 'source/res/show_all.png'
+    background_down: 'source/res/show_all_active.png'
+    border: (0, 0, 0, 0)
+
+<ConnectionsButton@Button>:
+    size_hint: (None, 1)
+    width: self.height
+    background_normal: 'source/res/connections.png'
+    background_down: 'source/res/connections_active.png'
+    border: (0, 0, 0, 0)
+
+
+<HiddenTogButton>:
+    size_hint: (None, 1)
+    width: self.height
+    background_normal: 'source/res/show_hidden.png'
+    background_down: 'source/res/show_hidden_active.png'
+    border: (0, 0, 0, 0)
+
+<TimelineButton@Button>:
+    size_hint: (None, 1)
+    width: self.height
+    background_normal: 'source/res/timeline.png'
+    background_down: 'source/res/timeline_active.png'
+    border: (0, 0, 0, 0)
+
+
+
 <SkillControlPanel>:
     tog_button: _tog_button
-    AnchorLayout:
-        anchor_x: 'left'
-        BoxLayout:
-            size_hint: 0.5, 1
-            Button:
-                text: "New skill"
-                on_press: root.screen_manager.current = 'add_skill_screen'
-            HiddenTogButton:
-                id: _tog_button
-                text: "Hidden"
-                root: root
-            Button:
-                text: "Connections"
-                on_press: root.screen_manager.current = 'node_editor_screen'
+    BoxLayout:
+        Label:
+        HiddenTogButton:
+            id: _tog_button
+            root: root
+        Label:
 
 <SkillControlGroupPanel>:
-    AnchorLayout:
-        anchor_x: 'left'
-        BoxLayout:
-            size_hint: 0.5, 1
-            Button:
-                text: "New skill"
-                on_press: root.screen_manager.current = 'add_skill_screen'
-            Button:
-                text: "Show all"
-                on_press:
-                    root.screen_manager.current = 'skills_screen'
-                    root.screen_manager.skills_screen.refresh()
-            Button:
-                text: "Connections"
-                on_press: root.screen_manager.current = 'node_editor_screen'
-            Button:
-                text: "Timeline"
-                on_press: root.screen_manager.current = 'timeline_screen'
+    BoxLayout:
+        spacing: 16
+        Label:
+        AddSkillButton:
+            on_press: root.screen_manager.current = 'add_skill_screen'
+        ShowAllButton:
+            on_press:
+                root.screen_manager.current = 'skills_screen'
+                root.screen_manager.skills_screen.refresh()
+        ConnectionsButton:
+            on_press: root.screen_manager.current = 'node_editor_screen'
+        TimelineButton:
+            on_press: root.screen_manager.current = 'timeline_screen'
+        Label:
+
+<TaskTogButton>:
+    size_hint: (None, 1)
+    width: self.height
+    background_normal: 'source/res/show_completed.png'
+    background_down: 'source/res/show_completed_active.png'
+    border: (0, 0, 0, 0)
+
+<AddTaskButton@Button>:
+    size_hint: (None, 1)
+    width: self.height
+    background_normal: 'source/res/plus_button.png'
+    background_down: 'source/res/plus_button_active.png'
+    border: (0, 0, 0, 0)
 
 <TaskControlPanel>:
     tog_button: _tog_button
-    AnchorLayout:
-        anchor_x: 'left'
-        BoxLayout:
-            size_hint: 1, 1
-            Button:
-                text: "New task"
-                on_press: root.screen_manager.current = 'add_task_screen'
-            TaskTogButton:
-                id: _tog_button
-                text: "Completed"
-                root: root
+    spacing: 16
+    AddTaskButton:
+        on_press: root.screen_manager.current = 'add_task_screen'
+    TaskTogButton:
+        id: _tog_button
+        root: root

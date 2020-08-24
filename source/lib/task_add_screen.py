@@ -19,7 +19,7 @@ class AddTaskScreen(Screen):
         self.manager.current_screen.item = self.manager.database.find_item(self.parent_group, self.parent_name)
 
 
-class AddTaskButton(Button):
+class ApplyTaskInfoButton(Button):
     def add_task(self):
         group = "/".join([self.screen_manager.add_task_screen.parent_group,
                           self.screen_manager.add_task_screen.parent_name])

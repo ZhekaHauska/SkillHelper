@@ -8,6 +8,9 @@
     importance: 0
     Label:
         text: root.name
+        text_size: self.size
+        halign: 'center'
+        valign: 'center'
     ColoredIndicator:
         size_hint: 0.1, 1
         val: root.importance
@@ -22,12 +25,15 @@
     time: 0
     description: ""
     item_id: 0
-    importance: 0
+    expected_average_speed: 0
     Label:
         text: root.name
+        text_size: self.size
+        halign: 'center'
+        valign: 'center'
     ColoredIndicator:
         size_hint: 0.1, 1
-        val: root.importance
+        val: min(root.expected_average_speed / 4, 1)
     Label:
         text: str(round(root.time, 2))
         size_hint: 0.1, 1
@@ -36,20 +42,30 @@
 <Timer>:
     orientation: 'vertical'
     timer: _timer
+    play_button: _play_button
     Label:
         id: _timer
         text: "Timer"
     BoxLayout:
         orientation: 'horizontal'
+        spacing: 5
+        Label:
         Button:
-            text: "Start"
+            id: _play_button
+            size_hint: (None, 1)
+            width: self.height
+            background_normal: 'source/res/play.png'
+            background_down: 'source/res/play_active.png'
+            border: (0, 0, 0, 0)
             on_press: root.start()
         Button:
-            text: "Pause"
-            on_press: root.pause()
-        Button:
-            text: "Finish"
+            size_hint: (None, 1)
+            width: self.height
+            background_normal: 'source/res/stop.png'
+            background_down: 'source/res/stop_active.png'
+            border: (0, 0, 0, 0)
             on_press: root.finish()
+        Label:
 
 
 <ColoredIndicator>:
@@ -152,3 +168,10 @@
         height: self.minimum_height
         orientation: 'vertical'
         spacing: 5
+
+<ApplyButton>:
+    size_hint_x: None
+    width: self.height
+    background_normal: 'source/res/apply.png'
+    background_down: 'source/res/apply_active.png'
+    border: (0, 0, 0, 0)

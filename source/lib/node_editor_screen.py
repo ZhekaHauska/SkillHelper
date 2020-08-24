@@ -17,7 +17,8 @@ class NodeEditorScreen(Screen):
         super(NodeEditorScreen, self).on_enter(*args)
         if self.node_editor is None:
             self.node_editor = NodeEditor(auto_bring_to_front=False,
-                                          screen_manager=self.manager)
+                                          screen_manager=self.manager,
+                                          size_hint_y=1.45)
             self.children[0].add_widget(self.node_editor, index=1)
 
             try:
@@ -81,8 +82,17 @@ class NodeEditorScreen(Screen):
 
             for child in self.node_editor.children:
                 if isinstance(child, Connection):
-                    row = self.find_item(child.node1.group, child.node1.name)
-                    col = self.find_item(child.node2.group, child.node2.name)
+                    try:
+                        row = self.find_item(child.node1.group, child.node1.name)
+                    except ValueError:
+                        self.remove_node(child.node1)
+                        continue
+                    try:
+                        col = self.find_item(child.node2.group, child.node2.name)
+                    except ValueError:
+                        self.remove_node(child.node2)
+                        continue
+
                     if child.direction != 1:
                         D[row, col] = child.strength + 1
                         if child.direction == 2:
@@ -128,6 +138,17 @@ class NodeEditorScreen(Screen):
                 if temp is not None:
                     D[col, row] = temp
         return value
+
+    def remove_node(self, node):
+        for connection in node.connections:
+            if node is connection.node2:
+                connection.node1.connected.remove(node)
+                connection.node1.connections.remove(connection)
+            else:
+                connection.node2.connected.remove(node)
+                connection.node2.connections.remove(connection)
+            self.node_editor.remove_widget(connection)
+        self.node_editor.remove_widget(node)
 
 
 class ApplyConnectionsButton(Button):

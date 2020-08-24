@@ -7,52 +7,58 @@
     expected_time: _expected_time
     BoxLayout:
         orientation: 'vertical'
+        SHTextInput:
+            size_hint: 1, 0.2
+            id: _task_name
+            text: "Task name"
+            multiline: False
         BoxLayout:
-            orientation: 'horizontal'
-            size_hint: 1, 0.3
-            Button:
-                size_hint: 0.1, 1
-                text: "Back"
+            size_hint_y: 1.2
+            SHTextInput:
+                size_hint_x: 1.2
+                id: _task_description
+                text: "Description"
+            BoxLayout:
+                orientation: "vertical"
+                BoxLayout:
+                    Label:
+                        text: "Start time:"
+                    SHTextInput:
+                        id: _task_time
+                        text: "0"
+                        multiline: False
+                BoxLayout:
+                    Label:
+                        text: "Expected time:"
+                    SHTextInput:
+                        id: _expected_time
+                        text: "hours"
+                BoxLayout:
+                    orientation: "vertical"
+                    Label:
+                        text: "Deadline:"
+                        halign: 'center'
+                    SHTextInput:
+                        id: _deadline
+                        text: "date in format: YYYY-MM-DD hh(24-hour)"
+        BoxLayout:
+            size_hint_y: 0.2
+            BackButton:
                 on_press:
                     root.back()
-            SHTextInput:
-                id: _task_name
-                text: "Task name"
-                multiline: False
-        SHTextInput:
-            size_hint: 1, 3
-            id: _task_description
-            text: "Description"
-        BoxLayout:
-            orientation: "horizontal"
-            BoxLayout:
-                orientation: "vertical"
-                Label:
-                    text: "Start time"
-                SHTextInput:
-                    id: _task_time
-                    text: "0"
-                    multiline: False
-            BoxLayout:
-                orientation: "vertical"
-                Label:
-                    text: "Deadline:"
-                SHTextInput:
-                    id: _deadline
-                    text: "date in format: YYYY-MM-DD hh(24-hour)"
-            BoxLayout:
-                orientation: "vertical"
-                Label:
-                    text: "Expected time:"
-                SHTextInput:
-                    id: _expected_time
-                    text: "hours"
-        AddTaskButton:
-            screen_manager: root.manager
-            task_name: _task_name
-            task_description: _task_description
-            task_time: _task_time
-            deadline: _deadline
-            expected_time: _expected_time
-            text: "Add"
-            on_press: self.add_task()
+            Label:
+            ApplyTaskInfoButton:
+                screen_manager: root.manager
+                task_name: _task_name
+                task_description: _task_description
+                task_time: _task_time
+                deadline: _deadline
+                expected_time: _expected_time
+                on_press: self.add_task()
+
+<ApplyTaskInfoButton>:
+    size_hint_x: None
+    width: self.height
+    background_normal: 'source/res/apply.png'
+    background_down: 'source/res/apply_active.png'
+    border: (0, 0, 0, 0)

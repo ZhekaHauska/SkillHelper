@@ -21,7 +21,6 @@ import math
 from functools import partial
 from datetime import datetime
 
-
 def hsv_to_rgb(h, s, v):
     h *= 360
     c = v * s
@@ -169,11 +168,19 @@ class Timer(BoxLayout):
 
     def start(self):
         if self.state == "off":
+            self.play_button.background_normal = 'source/res/pause.png'
+            self.play_button.background_down = 'source/res/pause_active.png'
             self.time = 0
             self.state = "on"
             Clock.schedule_interval(self.refresh_timer, 1)
         elif self.state == "pause":
+            self.play_button.background_normal = 'source/res/pause.png'
+            self.play_button.background_down = 'source/res/pause_active.png'
             self.state = "on"
+        elif self.state == "on":
+            self.state = "pause"
+            self.play_button.background_normal = 'source/res/play.png'
+            self.play_button.background_down = 'source/res/play_active.png'
 
     def refresh_timer(self, dt):
         if self.state == "on":
@@ -197,12 +204,8 @@ class Timer(BoxLayout):
     def finish(self):
         self.state = "off"
         self.add_time_amount.text = str(round(self.time / 3600, 2))
-
-    def pause(self):
-        if self.state == "pause":
-            self.state = "on"
-        elif self.state == "on":
-            self.state = "pause"
+        self.play_button.background_normal = 'source/res/play.png'
+        self.play_button.background_down = 'source/res/play_active.png'
 
 
 class ImportanceSlider(Slider):
@@ -524,8 +527,13 @@ class EditableLabel(RelativeLayout):
     def on_touch_down(self, touch):
         if touch.is_double_tap:
             if self.collide_point(*touch.pos) and (self.state == 'label'):
-                self.input = TextInput(text=self.text, multiline=False, halign='center',
-                                       valign='center')
+                self.input = TextInput(
+                                       text=self.text,
+                                       multiline=False,
+                                       halign='center',
+                                       background_color=(0, 0, 0, 0),
+                                       foreground_color=(1, 1, 1, 1)
+                                       )
                 self.input.bind(on_text_validate=self.apply)
                 self.input.bind(focus=self.cancel)
                 self.input.success = True
@@ -558,6 +566,7 @@ class DeadlineLabel(EditableLabel):
         if self.input.success:
             super(DeadlineLabel, self).apply(*args)
             self.screen.save({'deadline': self.text})
+            self.screen.refresh()
         else:
             self.warning_blink()
             return True
@@ -575,6 +584,7 @@ class ExpectedTimeLabel(EditableLabel):
         if self.input.success:
             super(ExpectedTimeLabel, self).apply(*args)
             self.screen.save({'expected_time': exp_time})
+            self.screen.refresh()
         else:
             self.warning_blink()
             return True
@@ -586,11 +596,11 @@ class DescriptionNote(RelativeLayout):
     def __init__(self, **kwargs):
         super(DescriptionNote, self).__init__(**kwargs)
         self.screen = None
-        self.input = TextInput()
+        self.input = TextInput(background_color=(0.88627451, 0.89803922, 0.46666667, 1), foreground_color=(0, 0, 0, 1))
         self.input.bind(focus=self.on_focus)
         self.add_widget(self.input)
 
-        self.button = Button(text="Apply", size_hint=(0.1, 0.1))
+        self.button = ApplyButton(size_hint_y=None, height=40, pos_hint={'right': 1})
         self.button.bind(on_press=self.on_press)
 
     def on_focus(self, instance, value):
@@ -609,3 +619,6 @@ class DescriptionNote(RelativeLayout):
     def on_text(self, instance, value):
         self.input.text = value
 
+
+class ApplyButton(Button):
+    pass

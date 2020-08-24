@@ -69,7 +69,9 @@
     load_display: _load_display
     BoxLayout:
         orientation: 'vertical'
+        spacing: 16
         TasksOverview:
+            size_hint_y: 1.2
             id: _tasks
             time_scale: _scale.value
         BoxLayout:
@@ -93,11 +95,9 @@
                 max_days: _scale.value
                 tasks: _tasks
         BoxLayout:
-            size_hint: (1, 0.1)
+            size_hint: (1, 0.2)
             orientation: 'horizontal'
-            Button:
-                size_hint: (0.1, 1)
-                text: 'Back'
+            BackButton:
                 on_press: root.manager.current = 'group_screen'
             Label:
                 id: _info
@@ -106,6 +106,10 @@
                 info: _info
                 tasks: _tasks
                 screen_manager: root.manager
-                size_hint: (0.1, 1)
-                text: 'Apply'
 
+<ApplyDeadlineButton>:
+    size_hint_x: None
+    width: self.height
+    background_normal: 'source/res/apply.png'
+    background_down: 'source/res/apply_active.png'
+    border: (0, 0, 0, 0)

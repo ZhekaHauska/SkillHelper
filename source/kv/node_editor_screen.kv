@@ -1,13 +1,10 @@
 <NodeEditorScreen>:
     name: "node_editor_screen"
-    BoxLayout:
-        orientation: "vertical"
-        GridLayout:
-            size_hint: (1, 0.1)
-            rows: 1
-            Button:
-                size_hint: (0.1, 1)
-                text: "Back"
+    GridLayout:
+        cols: 1
+        BoxLayout:
+            size_hint: (1, 0.2)
+            BackButton:
                 on_press:
                     root.manager.current = "group_screen"
             Label:
@@ -15,13 +12,17 @@
             ApplyConnectionsButton:
                 info: _infoc
                 connections: root.__self__
-                size_hint: (0.1, 1)
-                text: "Apply"
-        BoxLayout:
+        Slider:
             size_hint: 1, 0.1
-            Slider:
-                min: 0.5
-                max: 2
-                step: 0.1
-                value: 1
-                on_value: root.node_editor.scale = self.value
+            min: 0.5
+            max: 2
+            step: 0.1
+            value: 1
+            on_value: root.node_editor.scale = self.value
+
+<ApplyConnectionsButton>:
+    size_hint_x: None
+    width: self.height
+    background_normal: 'source/res/apply.png'
+    background_down: 'source/res/apply_active.png'
+    border: (0, 0, 0, 0)

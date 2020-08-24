@@ -44,9 +44,7 @@ class GroupButton(Button):
         super(GroupButton, self).__init__(**kwargs)
         self.group = group['name']
         self.screen_manager = screen_manager
-        self.orientation = 'vertical'
         self.size_hint_x = None
-        self.width = 150
         self.markup = True
         text = [f"[size=18][b]{group['name']}[/b][/size]",
                 f"[size=12]Priority: {round(group['priority'], 2)}[/size]",
@@ -75,36 +73,20 @@ class GroupView(ScrollView):
             self.box_layout.add_widget(button)
 
 
-class TasksItemInfo(Label):
+class TasksItemInfo(Button):
     def __init__(self, manager, task, **kwargs):
         super(TasksItemInfo, self).__init__(**kwargs)
         self.manager = manager
         self.task = task
-        self.selected = None
         self.halign = 'left'
         self.markup = True
-        self.text = f"[u]{task['group'] +'/'+ task['name']}[/u] | [b]{task['deadline']}[/b] | {round(task['remain'], 2)}"
+        self.text = f"{task['group'] +'/'+ task['name']} | [b]{task['deadline']}[/b] | {round(task['remain'], 2)}"
 
-    def on_touch_down(self, touch):
-        if self.collide_point(touch.x, touch.y):
-            with self.canvas:
-                Color(1, 1, 1)
-                x, y = self.to_parent(0, 0, relative=True)
-                self.selected = Line(rectangle=(x, y, self.width, self.height), dash_offset=2)
-            return True
-        return super(TasksItemInfo, self).on_touch_down(touch)
+    def on_press(self, *args):
+        sm = self.manager
 
-    def on_touch_up(self, touch):
-        if self.selected:
-            self.canvas.remove(self.selected)
-            self.selected = None
-            sm = self.manager
-
-            sm.task_info_screen.item = self.task
-            sm.current = 'task_info_screen'
-
-            return True
-        return super(TasksItemInfo, self).on_touch_up(touch)
+        sm.task_info_screen.item = self.task
+        sm.current = 'task_info_screen'
 
 
 class ScheduleInfo(RelativeLayout):
@@ -116,7 +98,7 @@ class ScheduleInfo(RelativeLayout):
     def refresh(self, manager, tasks):
         self.box_layout.clear_widgets()
 
-        self.box_layout.add_widget(Label(text="[size=20][b][color=ff3333]Closest deadlines:[/color][/b][/size]",
+        self.box_layout.add_widget(Label(text="[size=20][b]The closest deadlines:[/b][/size]",
                                          size_hint=(1, 1), markup=True, valign='middle'))
         sorted_tasks = sorted(tasks, key=lambda x: x['remain'])[:3]
         for item in sorted_tasks:

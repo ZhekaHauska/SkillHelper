@@ -1,28 +1,39 @@
+<BackButton@Button>:
+    size_hint: (None, 1)
+    width: self.height
+    background_normal: 'source/res/back.png'
+    background_down: 'source/res/back_active.png'
+    border: (0, 0, 0, 0)
+
 <SkillsScreen>:
     name: "skills_screen"
     items_view: _items_view
     stats: _stats
     control_panel: _control_panel
+    group_name: 'Group Name'
     BoxLayout:
         orientation: 'vertical'
-        AnchorLayout:
-            size_hint: 1, 0.1
-            anchor_x: 'left'
-            anchor_y: 'top'
-            BoxLayout:
-                size_hint: 0.1, 1
-                orientation: 'horizontal'
-                Button:
-                    text: "Back"
-                    on_press:
-                        root.manager.current = "group_screen"
+        spacing: 16
+        BoxLayout:
+            size_hint: (1, 0.2)
+            BackButton:
+                on_press:
+                    root.manager.current = "group_screen"
+            Label:
+                size_hint_x: 2.5
+                text: root.group_name
+                text_size: self.size
+                valign: 'center'
+                halign: 'center'
+
         SkillsView:
             id: _items_view
             screen_manager: root.manager
+            size_hint_y: 1.2
         SkillControlPanel:
             id: _control_panel
             screen_manager: root.manager
-            size_hint: 1, 0.1
+            size_hint: 1, 0.2
         Label:
             size_hint: 1, 0.05
             id: _stats

@@ -12,6 +12,7 @@
     schedule_info: _schedule_info
     BoxLayout:
         orientation: 'vertical'
+        spacing: 16
         GroupView:
             id: _group_view
             size_hint_y: 0.4
@@ -19,7 +20,7 @@
             id: _schedule_info
         SkillControlGroupPanel:
             screen_manager: root.manager
-            size_hint: 1, 0.1
+            size_hint: 1, 0.2
         BoxLayout:
             orientation: "horizontal"
             size_hint: 1, 0.05
@@ -27,3 +28,10 @@
                 id: _stats
             Label:
                 id: _speed
+
+<GroupButton>:
+    width: self.height
+    background_color: (0.255, 0.25, 1, 0.5)
+
+<TasksItemInfo>:
+    background_color: 0.255, 0.25, 1, 0.5
